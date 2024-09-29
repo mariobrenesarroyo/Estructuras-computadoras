@@ -1,12 +1,14 @@
     .data
-A:  .word 3, 2, 7, 4, 10, 12, 14     # Definir el arreglo A con valores de prueba
+N:  .word 5                       # Definir el valor de N en memoria accesible
+A:  .word 3, 2, 7, 4, 10, 14 13   # Definir el arreglo A con valores de prueba
 
     .text
     .globl main
 main:
-    # Cargar N desde la dirección 0x20202020
-    la   $t1, 0x20202020        # Cargar la dirección de N
-    lw   $t2, 0($t1)            # Cargar N en $t2
+    # Cargar N desde la sección de datos
+    la   $t1, N                # Cargar la dirección de N
+    lw   $t2, 0($t1)           # Cargar N en $t2
+
 
     # Cargar la dirección base de A en $s0
     la   $s0, A                 # Cargar la dirección base de A en $s0
@@ -48,3 +50,6 @@ incremento:
 
 end_for:
     nop                         # Fin del programa
+
+
+
