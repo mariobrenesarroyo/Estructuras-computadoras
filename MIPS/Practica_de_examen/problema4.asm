@@ -1,8 +1,18 @@
+    .data
+A:  .word 3, 2, 7, 4, 10, 12, 14     # Definir el arreglo A con valores de prueba
+
+    .text
+    .globl main
+main:
+    # Cargar N desde la dirección 0x20202020
     la   $t1, 0x20202020        # Cargar la dirección de N
     lw   $t2, 0($t1)            # Cargar N en $t2
+
+    # Cargar la dirección base de A en $s0
+    la   $s0, A                 # Cargar la dirección base de A en $s0
     add  $t0, $0, $0            # Inicializar i en 0
-    add  $t9, $0, $0            # Variable igual a 0 en t9 (se usa para comparar con A[i])
-    
+    add  $t9, $0, $0            # Variable igual a 0 en $t9 (para comparaciones)
+
 for:
     beq  $t0, $t2, end_for      # Si i == N, salir del bucle
 
@@ -13,15 +23,16 @@ for:
     # if(A[i] < 0)
     lw   $t5, 0($t4)            # Cargar A[i] en $t5
     slt  $t6, $t5, $0           # Comparar A[i] < 0, si sí $t6 = 1
-    beq  $t6, $0, check_next    # Si A[i] >= 0, saltar a check_next
+    beq  $t6, $0, siguiente    # Si A[i] >= 0, saltar a siguiente
 
     # A[i] = -A[i]
     sub  $t5, $0, $t5           # A[i] = -A[i]
     sw   $t5, 0($t4)            # Guardar -A[i] de nuevo en A[i]
 
-check_next:
+siguiente:
     addi $t6, $t0, 1            # Calcular i + 1
-    bge  $t6, $t2, increment_i  # Si i+1 >= N, saltar a incrementar i
+    slt  $t9, $t6, $t2          # Si i+1 < N, $t9 = 1
+    beq  $t9, $0, incremento   # Si i+1 >= N, saltar a incrementar i
 
     # A[i] = A[i] + 2*A[i+1]
     sll  $t6, $t6, 2            # Multiplicar (i + 1) por 4
@@ -31,10 +42,9 @@ check_next:
     add  $t5, $t5, $t8          # A[i] = A[i] + 2*A[i+1]
     sw   $t5, 0($t4)            # Guardar el resultado en A[i]
 
-increment_i:
+incremento:
     addi $t0, $t0, 1            # Incrementar i
     j    for                    # Saltar al inicio del bucle
 
 end_for:
-    # Fin del bucle
-    nop
+    nop                         # Fin del programa
