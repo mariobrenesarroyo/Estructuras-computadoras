@@ -30,5 +30,3 @@ while:
 
 end_while:
     # Termina el programa
-    li $v0, 10
-    syscall
