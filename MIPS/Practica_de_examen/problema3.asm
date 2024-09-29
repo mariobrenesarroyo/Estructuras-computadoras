@@ -1,5 +1,5 @@
 .data
-A: .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+A: .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 .text
 .globl main
 main:
@@ -7,26 +7,35 @@ main:
     addi $t0, $zero, 1 # Inicializa $t0 con el valor 1
 
 while:
-    sll $t1, $t0, 1         # $t1 = i * 2
-    sll $t2, $t1, 2         # $t2 = (i * 2) * 4 (desplazamiento en bytes)
-    add $t3, $s0, $t2       # $t3 = dirección de A[2 * i]
-    lw $t4, 0($t3)          # Carga A[2 * i] en $t4
+    sll $t1, $t0, 1    # $t1 = 2 * i
+    sll $t1, $t1, 2    # Multiplicamos por 4 para el desplazamiento en bytes: $t1 = 2 * i * 4
+    add $t2, $s0, $t1  # $t2 = Dirección de A[2*i]
 
-    beq $t4, $zero, end_while  # Si A[2 * i] == 0, termina el bucle
+    lw $t3, 0($t2)     # Carga A[2*i] en $t3
+    beq $t3, $zero, end_while # Si A[2*i] == 0, termina el bucle
 
-    sub $t5, $t2, 4         # $t5 = (i * 2) * 4 - 4 (dirección de A[2 * i - 1])
-    lw $t6, 0($t5)          # Carga A[2 * i - 1] en $t6
-    add $t7, $t2, 4         # $t7 = (i * 2) * 4 + 4 (dirección de A[2 * i + 1])
-    lw $t8, 0($t7)          # Carga A[2 * i + 1] en $t8
+    addi $t4, $t1, -4  # Calcula la dirección de A[2*i-1]
+    add $t4, $t4, $s0  # Ajusta la dirección base: A[2*i-1]
+    lw $t5, 0($t4)     # Carga A[2*i-1] en $t5
 
-    add $t9, $t6, $t8       # $t9 = A[2 * i - 1] + A[2 * i + 1]
+    addi $t6, $t1, 4   # Calcula la dirección de A[2*i+1]
+    add $t6, $t6, $s0  # Ajusta la dirección base: A[2*i+1]
+    lw $t7, 0($t6)     # Carga A[2*i+1] en $t7
 
-    sll $t10, $t0, 2        # $t10 = i * 4 (desplazamiento en bytes para A[i])
-    add $t11, $s0, $t10     # $t11 = dirección de A[i]
-    sw $t9, 0($t11)         # Guarda el resultado en A[i]
+    add $t8, $t5, $t7  # Suma A[2*i-1] + A[2*i+1]
 
-    addi $t0, $t0, 1        # i++
-    j while                 # Salta al inicio del bucle
+    sll $t9, $t0, 2    # Calcula el desplazamiento para A[i], $t9 = i * 4
+    add $t9, $s0, $t9  # $t9 = Dirección de A[i]
+    sw $t8, 0($t9)     # Guarda el resultado en A[i]
+
+    addi $t0, $t0, 1   # Incrementa i: i++
+
+    j while            # Salta al inicio del bucle
 
 end_while:
+<<<<<<< HEAD
     # Termina el programa
+=======
+    # Fin del bucle
+
+>>>>>>> origin/main
