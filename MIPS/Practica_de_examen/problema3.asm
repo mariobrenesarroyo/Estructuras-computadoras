@@ -33,9 +33,6 @@ while:
     j while            # Salta al inicio del bucle
 
 end_while:
-<<<<<<< HEAD
-    # Termina el programa
-=======
     # Fin del bucle
-
->>>>>>> origin/main
+    li $v0, 10
+    syscall
