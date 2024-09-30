@@ -31,29 +31,29 @@ find_min_max:
     sw $s1, 4($sp)                 # Guardar el valor de $s1
     sw $s2, 0($sp)                 # Guardar el valor de $s2
 
-    lw $s0, 0($a0)                 # Cargar el primer elemento del array en $s0
-    move $t7, $s0                  # Inicializar $t7 (máximo) con el primer elemento
-    move $t3, $s0                  # Inicializar $t3 (mínimo) con el primer elemento
-    li $s2, 1                       # Inicializar el índice i en 1
+    add $s0, $a0, $zero            # $s0 = dirección base del array A
+    lw $s1, 0($s0)                 # Cargar el primer elemento del array en $s1
+    add $t7, $s1, $zero            # Inicializar $t7 con el primer elemento (máximo)
+    add $t3, $s1, $zero            # Inicializar $t3 con el primer elemento (mínimo)
+    addi $s2, $zero, 1             # Inicializar el índice i en 1
     lw $t8, N                       # Cargar el número de elementos en $t8
 
 loop:
     beq $s2, $t8, end_loop         # Si el índice i es igual a N, salir del bucle
     sll $t1, $s2, 2                # Calcular el desplazamiento: índice i * 4
-    add $t2, $a0, $t1              # Calcular la dirección de A[i]
+    add $t2, $s0, $t1              # Calcular la dirección de A[i]
     lw $t4, 0($t2)                 # Cargar A[i] en $t4
 
     # Verificar máximo
     slt $t5, $t7, $t4              # Si $t7 < $t4, $t5 = 1
-    bne $t5, $zero, update_max     # Si $t5 != 0, actualizar máximo
+    beq $t5, $zero, check_min      # Si $t7 >= $t4, saltar a check_min
+    add $t7, $t4, $zero            # Actualizar el máximo
 
-update_max:
-    move $t7, $t4                  # Actualizar el máximo
-
+check_min:
     # Verificar mínimo
-    slt $t6, $t3, $t4              # Si $t3 < $t4, $t6 = 1
-    beq $t6, $zero, next           # Si $t3 >= $t4, saltar a next
-    move $t3, $t4                  # Actualizar el mínimo
+    slt $t6, $t4, $t3              # Si $t4 < $t3, $t6 = 1
+    beq $t6, $zero, next           # Si $t4 >= $t3, saltar a next
+    add $t3, $t4, $zero            # Actualizar el mínimo
 
 next:
     addi $s2, $s2, 1               # Incrementar el índice i
