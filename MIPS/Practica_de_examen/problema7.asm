@@ -92,5 +92,6 @@ end_check_min:
     lw $ra, 4($sp)                 # Restaurar el valor de $ra
     addi $sp, $sp, 8               # Restaurar el puntero de pila
     jr $ra                         # Retornar
+ori $v0, $zero, 0x0000  # Cargar 0x00000000 en $v0
 
 add $v0, $t7, $zero            # Guardar el valor máximo en $v0
