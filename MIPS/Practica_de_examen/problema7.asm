@@ -24,74 +24,40 @@ find_min_max:
     sw $s2, 0($sp)                 # Guardar el valor de $s2
 
     add $s0, $a0, $zero            # $s0 = dirección base del array A
-    add $s1, $a1, $zero            # $s1 = N (número de elementos)
-    lw $t0, 0($s0)                 # Cargar el primer elemento del array en $t0
-    add $t7, $t0, $zero            # Inicializar $t7 con el primer elemento (máximo)
-    add $t3, $t0, $zero            # Inicializar $t3 con el primer elemento (mínimo)
+    lw $s1, 0($s0)                 # Cargar el primer elemento del array en $s1
+    add $t7, $s1, $zero            # Inicializar $t7 con el primer elemento (máximo)
+    add $t3, $s1, $zero            # Inicializar $t3 con el primer elemento (mínimo)
     addi $s2, $zero, 1             # Inicializar el índice i en 1
-    addi $s3, $zero, 1             # Inicializar el índice j en 1
+    lw $t8, N                      # Cargar el número de elementos en $t8
 
 loop:
-    beq $s2, $s1, end_loop         # Si el índice i es igual a N, salir del bucle
+    beq $s2, $t8, end_loop         # Si el índice i es igual a N, salir del bucle
     sll $t1, $s2, 2                # Calcular el desplazamiento: índice i * 4
     add $t2, $s0, $t1              # Calcular la dirección de A[i]
     lw $t4, 0($t2)                 # Cargar A[i] en $t4
 
-    jal check_max                  # Llamar a la función check_max
-
-    addi $s2, $s2, 1               # Incrementar el índice i
-
-    beq $s3, $s1, end_loop         # Si el índice j es igual a N, salir del bucle
-    sll $t1, $s3, 2                # Calcular el desplazamiento: índice j * 4
-    add $t2, $s0, $t1              # Calcular la dirección de A[j]
-    lw $t4, 0($t2)                 # Cargar A[j] en $t4
-
-    jal check_min                  # Llamar a la función check_min
-
-    addi $s3, $s3, 1               # Incrementar el índice j
-
-    j loop                         # Repetir el bucle
-
-end_loop:
-    add $v0, $t7, $zero            # Guardar el valor máximo en $v0
-    add $v1, $t3, $zero            # Guardar el valor mínimo en $v1
-
-    lw $ra, 12($sp)                # Restaurar el valor de $ra
-    lw $s0, 8($sp)                 # Restaurar el valor de $s0
-    lw $s1, 4($sp)                 # Restaurar el valor de $s1
-    lw $s2, 0($sp)                 # Restaurar el valor de $s2
-    addi $sp, $sp, 16              # Restaurar el puntero de pila
-    jr $ra                         # Retornar
-
-check_max:
-    addi $sp, $sp, -8              # Reservar espacio en la pila
-    sw $ra, 4($sp)                 # Guardar el valor de $ra
-    sw $t4, 0($sp)                 # Guardar el valor de $t4
-
+    # Verificar máximo
     slt $t5, $t7, $t4              # Si $t7 < $t4, $t5 = 1
-    beq $t5, $zero, end_check_max  # Si $t7 >= $t4, saltar a end_check_max
+    beq $t5, $zero, check_min      # Si $t7 >= $t4, saltar a check_min
     add $t7, $t4, $zero            # Actualizar el máximo
 
-end_check_max:
-    lw $t4, 0($sp)                 # Restaurar el valor de $t4
-    lw $ra, 4($sp)                 # Restaurar el valor de $ra
-    addi $sp, $sp, 8               # Restaurar el puntero de pila
-    jr $ra                         # Retornar
-
 check_min:
-    addi $sp, $sp, -8              # Reservar espacio en la pila
-    sw $ra, 4($sp)                 # Guardar el valor de $ra
-    sw $t4, 0($sp)                 # Guardar el valor de $t4
-
+    # Verificar mínimo
     slt $t6, $t4, $t3              # Si $t4 < $t3, $t6 = 1
-    beq $t6, $zero, end_check_min  # Si $t4 >= $t3, saltar a end_check_min
+    beq $t6, $zero, next           # Si $t4 >= $t3, saltar a next
     add $t3, $t4, $zero            # Actualizar el mínimo
 
-end_check_min:
-    lw $t4, 0($sp)                 # Restaurar el valor de $t4
-    lw $ra, 4($sp)                 # Restaurar el valor de $ra
-    addi $sp, $sp, 8               # Restaurar el puntero de pila
-    jr $ra                         # Retornar
-ori $v0, $zero, 0x0000  # Cargar 0x00000000 en $v0
+next:
+    addi $s2, $s2, 1                # Incrementar el índice i
+    j loop                          # Repetir el bucle
 
-add $v0, $t7, $zero            # Guardar el valor máximo en $v0
+end_loop:
+    add $v0, $t7, $zero             # Guardar el valor máximo en $v0
+    add $v1, $t3, $zero             # Guardar el valor mínimo en $v1
+
+    lw $ra, 12($sp)                 # Restaurar el valor de $ra
+    lw $s0, 8($sp)                  # Restaurar el valor de $s0
+    lw $s1, 4($sp)                  # Restaurar el valor de $s1
+    lw $s2, 0($sp)                  # Restaurar el valor de $s2
+    addi $sp, $sp, 16               # Restaurar el puntero de pila
+    jr $ra                          # Retornar
