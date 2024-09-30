@@ -26,8 +26,8 @@ find_min_max:
     lw $t0, 0($s0)                 # Cargar el primer elemento del array en $t0
     add $t7, $t0, $zero            # Inicializar $t7 con el primer elemento (máximo)
     add $t3, $t0, $zero            # Inicializar $t3 con el primer elemento (mínimo)
-    addi $s2, $zero, 1             # Inicializar el índice i en 1
-    addi $s3, $zero, 1             # Inicializar el índice j en 1
+    addi $s2, $zero, 0             # Inicializar el índice i en 0
+    addi $s3, $zero, 0             # Inicializar el índice j en 0
 
 loop:
     beq $s2, $s1, end_loop         # Si el índice i es igual a N, salir del bucle
