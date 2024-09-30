@@ -74,6 +74,11 @@ check_max:
     beq $t5, $zero, end_check_max   # Si $t7 >= $t4, saltar a end_check_max
     add $t7, $t4, $zero             # Actualizar el máximo
 
+    # Imprimir el valor máximo intermedio
+    move $a0, $t7                   # Mover el valor máximo a $a0 para imprimir
+    li $v0, 1                       # Servicio para imprimir entero
+    syscall                         # Imprimir el valor máximo
+
 end_check_max:
     lw $t4, 0($sp)                  # Restaurar el valor de $t4
     lw $ra, 4($sp)                  # Restaurar el valor de $ra
@@ -88,6 +93,11 @@ check_min:
     slt $t6, $t4, $t3               # Si $t4 < $t3, $t6 = 1
     beq $t6, $zero, end_check_min   # Si $t4 >= $t3, saltar a end_check_min
     add $t3, $t4, $zero             # Actualizar el mínimo
+
+    # Imprimir el valor mínimo intermedio
+    move $a0, $t3                   # Mover el valor mínimo a $a0 para imprimir
+    li $v0, 1                       # Servicio para imprimir entero
+    syscall                         # Imprimir el valor mínimo
 
 end_check_min:
     lw $t4, 0($sp)                  # Restaurar el valor de $t4
