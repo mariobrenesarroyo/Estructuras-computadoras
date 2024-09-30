@@ -36,18 +36,9 @@ loop:
     add $t2, $s0, $t1              # Calcular la dirección de A[indice]
     lw $t4, 0($t2)                 # Cargar A[indice] en $t4
 
-    # Comparar y actualizar el máximo
-    slt $t5, $t7, $t4              # Si $t7 < $t4, $t5 = 1
-    beq $t5, $zero, check_min      # Si $t7 >= $t4, saltar a check_min
-    add $t7, $t4, $zero            # Actualizar el máximo
+    jal check_max                  # Llamar a la función check_max
+    jal check_min                  # Llamar a la función check_min
 
-check_min:
-    # Comparar y actualizar el mínimo
-    slt $t6, $t4, $t3              # Si $t4 < $t3, $t6 = 1
-    beq $t6, $zero, next           # Si $t4 >= $t3, saltar a next
-    add $t3, $t4, $zero            # Actualizar el mínimo
-
-next:
     addi $s2, $s2, 1               # Incrementar el índice
     j loop                         # Repetir el bucle
 
@@ -60,4 +51,34 @@ end_loop:
     lw $s1, 4($sp)                 # Restaurar el valor de $s1
     lw $s2, 0($sp)                 # Restaurar el valor de $s2
     addi $sp, $sp, 16              # Restaurar el puntero de pila
+    jr $ra                         # Retornar
+
+check_max:
+    addi $sp, $sp, -8              # Reservar espacio en la pila
+    sw $ra, 4($sp)                 # Guardar el valor de $ra
+    sw $t4, 0($sp)                 # Guardar el valor de $t4
+
+    slt $t5, $t7, $t4              # Si $t7 < $t4, $t5 = 1
+    beq $t5, $zero, end_check_max  # Si $t7 >= $t4, saltar a end_check_max
+    add $t7, $t4, $zero            # Actualizar el máximo
+
+end_check_max:
+    lw $t4, 0($sp)                 # Restaurar el valor de $t4
+    lw $ra, 4($sp)                 # Restaurar el valor de $ra
+    addi $sp, $sp, 8               # Restaurar el puntero de pila
+    jr $ra                         # Retornar
+
+check_min:
+    addi $sp, $sp, -8              # Reservar espacio en la pila
+    sw $ra, 4($sp)                 # Guardar el valor de $ra
+    sw $t4, 0($sp)                 # Guardar el valor de $t4
+
+    slt $t6, $t4, $t3              # Si $t4 < $t3, $t6 = 1
+    beq $t6, $zero, end_check_min  # Si $t4 >= $t3, saltar a end_check_min
+    add $t3, $t4, $zero            # Actualizar el mínimo
+
+end_check_min:
+    lw $t4, 0($sp)                 # Restaurar el valor de $t4
+    lw $ra, 4($sp)                 # Restaurar el valor de $ra
+    addi $sp, $sp, 8               # Restaurar el puntero de pila
     jr $ra                         # Retornar
