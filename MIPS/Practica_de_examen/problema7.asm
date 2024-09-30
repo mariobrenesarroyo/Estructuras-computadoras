@@ -1,21 +1,3 @@
-.data
-A:      .word 1, 2, -3, 6, 5, -7, 9   # Definición del arreglo A
-N:      .word 7                      # Número de elementos en el arreglo
-
-.text
-.globl main
-
-main:
-    la $a0, A                      # Cargar la dirección base del arreglo A en $a0
-    lw $a1, N                      # Cargar el número de elementos N en $a1
-    jal find_min_max               # Llamar a la función find_min_max
-
-    # Aquí puedes realizar otras operaciones si lo deseas, pero el arreglo ya está almacenado.
-
-    # Finalizar el programa
-    li $v0, 10                     # Código de servicio para terminar el programa
-    syscall
-
 find_min_max:
     addi $sp, $sp, -16             # Reservar espacio en la pila
     sw $ra, 12($sp)                # Guardar el valor de $ra
