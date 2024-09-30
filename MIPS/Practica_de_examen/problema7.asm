@@ -1,5 +1,5 @@
 .data
-A:      .word 1, 2, 3, 6, 5, 7, 9   # Definición del arreglo A
+A:      .word 1, 2, -3, 6, 5, -7, 9   # Definición del arreglo A
 N:      .word 7                        # Número de elementos en el arreglo
 
 .text
