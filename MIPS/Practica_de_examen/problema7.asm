@@ -1,5 +1,5 @@
 .data
-A:      .word 1, 2, -3, 6, 5, -7, 12   # Definición del arreglo A
+A:      .word 1, 2, -3, 6, 5, -7, 9   # Definición del arreglo A
 N:      .word 7                      # Número de elementos en el arreglo
 
 .text
@@ -38,24 +38,18 @@ loop:
 
     # Comparar y actualizar el máximo
     slt $t4, $v0, $t3              # Si $v0 < $t3, $t4 = 1
-    bne $t4, $zero, update_max     # Si $v0 < $t3, saltar a update_max
-    j check_min                    # Ir a check_min
-
-update_max:
+    beq $t4, $zero, check_min      # Si $v0 >= $t3, saltar a check_min
     add $v0, $t3, $zero            # Actualizar el máximo
 
 check_min:
     # Comparar y actualizar el mínimo
     slt $t5, $t3, $v1              # Si $t3 < $v1, $t5 = 1
-    bne $t5, $zero, update_min     # Si $t3 < $v1, saltar a update_min
+    beq $t5, $zero, next           # Si $t3 >= $v1, saltar a next
+    add $v1, $t3, $zero            # Actualizar el mínimo
 
 next:
     addi $s2, $s2, 1               # Incrementar el índice
     j loop                         # Repetir el bucle
-
-update_min:
-    add $v1, $t3, $zero            # Actualizar el mínimo
-    j next                         # Ir a next
 
 end_loop:
     lw $ra, 12($sp)                # Restaurar el valor de $ra
