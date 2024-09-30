@@ -1,6 +1,6 @@
 .data
 A:      .word 1, 2, -3, 6, 5, -7, 9   # Definición del arreglo A
-N:      .word 7                        # Número de elementos en el arreglo
+N:      .word 7                      # Número de elementos en el arreglo
 
 .text
 .globl main
@@ -37,13 +37,13 @@ loop:
     lw $t3, 0($t2)                 # Cargar A[indice] en $t3
 
     # Comparar y actualizar el máximo
-    sltu $t4, $v0, $t3             # Si $v0 < $t3, $t4 = 1
+    slt $t4, $v0, $t3              # Si $v0 < $t3, $t4 = 1
     beq $t4, $zero, check_min      # Si $v0 >= $t3, saltar a check_min
     add $v0, $t3, $zero            # Actualizar el máximo
 
 check_min:
     # Comparar y actualizar el mínimo
-    sltu $t5, $t3, $v1             # Si $t3 < $v1, $t5 = 1
+    slt $t5, $t3, $v1              # Si $t3 < $v1, $t5 = 1
     beq $t5, $zero, next           # Si $t3 >= $v1, saltar a next
     add $v1, $t3, $zero            # Actualizar el mínimo
 
