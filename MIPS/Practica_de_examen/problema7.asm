@@ -36,7 +36,7 @@ find_min_max:
     add $t7, $s1, $zero            # Inicializar $t7 con el primer elemento (máximo)
     add $t3, $s1, $zero            # Inicializar $t3 con el primer elemento (mínimo)
     addi $s2, $zero, 1             # Inicializar el índice i en 1
-    lw $t8, N                       # Cargar el número de elementos en $t8
+    lw $t8, N                      # Cargar el número de elementos en $t8
 
 loop:
     beq $s2, $t8, end_loop         # Si el índice i es igual a N, salir del bucle
