@@ -1,3 +1,17 @@
+data
+A:      .word 1, 2, -3, 6, 5, -7, 9   # Definición del arreglo A
+N:      .word 7                      # Número de elementos en el arreglo
+
+.text
+.globl main
+
+main:
+    la $a0, A                      # Cargar la dirección base del arreglo A en $a0
+    lw $a1, N                      # Cargar el número de elementos N en $a1
+    jal find_min_max               # Llamar a la función find_min_max
+    # Finalizar el programa
+    li $v0, 10                     # Código de servicio para terminar el programa
+    syscall
 find_min_max:
     addi $sp, $sp, -16             # Reservar espacio en la pila
     sw $ra, 12($sp)                # Guardar el valor de $ra
@@ -20,18 +34,24 @@ loop:
 
     # Comparar y actualizar el máximo
     slt $t4, $v0, $t3              # Si $v0 < $t3, $t4 = 1
-    beq $t4, $zero, check_min      # Si $v0 >= $t3, saltar a check_min
+    bne $t4, $zero, update_max     # Si $v0 < $t3, saltar a update_max
+    j check_min                    # Ir a check_min
+
+update_max:
     add $v0, $t3, $zero            # Actualizar el máximo
 
 check_min:
     # Comparar y actualizar el mínimo
     slt $t5, $t3, $v1              # Si $t3 < $v1, $t5 = 1
-    beq $t5, $zero, next           # Si $t3 >= $v1, saltar a next
-    add $v1, $t3, $zero            # Actualizar el mínimo
+    bne $t5, $zero, update_min     # Si $t3 < $v1, saltar a update_min
 
 next:
     addi $s2, $s2, 1               # Incrementar el índice
     j loop                         # Repetir el bucle
+
+update_min:
+    add $v1, $t3, $zero            # Actualizar el mínimo
+    j next                         # Ir a next
 
 end_loop:
     lw $ra, 12($sp)                # Restaurar el valor de $ra
