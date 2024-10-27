@@ -1,6 +1,6 @@
 .data
 mensaje_solicitud: .asciiz "Ingrese una frase: "
-vocales: .asciiz "aeiou"
+vocales: .asciiz "aeiouAEIOU"  # Incluir mayúsculas
 buffer: .space 100
 mensaje_contador_palabras: .asciiz "Cantidad de palabras: "
 mensaje_contador_caracteres: .asciiz "Cantidad de caracteres: "
@@ -15,16 +15,12 @@ contador_consonantes: .word 0
 main:
     # Imprimir el mensaje de solicitud
     addi $v0, $zero, 4
-
-    # Cargar dirección de 'mensaje_solicitud' en $a0 usando 'lui' y 'ori'
     lui $a0, 0x1001             # Parte alta de la dirección de 'mensaje_solicitud'
     ori $a0, $a0, 0x0000        # Parte baja de la dirección
     syscall
 
     # Leer la entrada del usuario
     addi $v0, $zero, 8
-
-    # Cargar dirección de 'buffer' en $a0 usando 'lui' y 'ori'
     lui $a0, 0x1001             # Parte alta de la dirección de 'buffer'
     ori $a0, $a0, 0x0020        # Parte baja de la dirección
     addi $a1, $zero, 100
@@ -39,32 +35,30 @@ main:
     addi $t3, $zero, 0          # Contador de caracteres
     addi $t4, $zero, 0          # Contador de vocales
     addi $t5, $zero, 0          # Contador de consonantes
+    addi $t9, $zero, 1          # Variable para verificar si es el inicio de una palabra
 
     # Contar palabras, caracteres, vocales y consonantes
 bucle_conteo:
     lb $t6, 0($t0)              # Leer el siguiente carácter
     beq $t6, $zero, fin_bucle    # Si es el fin de la cadena, salir del bucle
 
+    # Contar caracteres (incluyendo espacios)
+    addi $t3, $t3, 1            # Incrementar contador de caracteres
+
     # Contar palabras
     beq $t6, 32, espacio_detectado # Si es un espacio
+    beq $t9, $zero, caracter_detectado  # Si no es el primer carácter de una palabra
     addi $t2, $t2, 1            # Incrementar contador de palabras
+    addi $t9, $zero, 0          # Establecer a 0 ya que estamos dentro de una palabra
     j caracter_detectado
 
 espacio_detectado:
+    addi $t9, $zero, 1          # Es un espacio, podemos comenzar una nueva palabra
     addi $t0, $t0, 1            # Avanzar al siguiente carácter
     j bucle_conteo
 
 caracter_detectado:
-    # Contar caracteres (ignorando espacios y signos de puntuación)
-    addi $t7, $zero, 97         # 'a'
-    slt $t8, $t6, $t7           # $t8 = ($t6 < 'a')
-    bne $t8, $zero, siguiente_caracter
-    addi $t7, $zero, 123        # 'z' + 1
-    slt $t8, $t6, $t7           # $t8 = ($t6 < 'z' + 1)
-    beq $t8, $zero, siguiente_caracter
-    addi $t3, $t3, 1            # Incrementar contador de caracteres
-
-    # Contar vocales y consonantes
+    # Contar vocales
     lui $t1, 0x1001
     ori $t1, $t1, 0x0030        # Dirección de 'vocales'
 verificar_vocal:
@@ -79,6 +73,20 @@ detectar_vocal:
     j siguiente_caracter
 
 detectar_consonante:
+    # Verificar si es consonante (debe ser letra y no vocal)
+    addi $t7, $zero, 97         # 'a'
+    slt $t8, $t6, $t7           # $t8 = ($t6 < 'a')
+    beq $t8, $zero, siguiente_caracter
+    addi $t7, $zero, 123        # 'z' + 1
+    slt $t8, $t6, $t7           # $t8 = ($t6 < 'z' + 1)
+    beq $t8, $zero, siguiente_caracter
+
+    # Si no es vocal y está en el rango de letras
+    beq $t6, 97, siguiente_caracter  # Si es 'a'
+    beq $t6, 101, siguiente_caracter  # Si es 'e'
+    beq $t6, 105, siguiente_caracter  # Si es 'i'
+    beq $t6, 111, siguiente_caracter  # Si es 'o'
+    beq $t6, 117, siguiente_caracter  # Si es 'u'
     addi $t5, $t5, 1            # Incrementar contador de consonantes
 
 siguiente_caracter:
