@@ -2,11 +2,10 @@
 mensaje_solicitud: .asciiz "¡Hola!\nPor favor ingrese una frase o palabra para analizarla:"
 vocales: .asciiz "aeiouAEIOU"
 consonantes: .asciiz "bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ"
-espacio: .asciiz " "
 buffer: .space 100
 mensaje_resultados: .asciiz "Resultados:\n"
 mensaje_contador_palabras: .asciiz "Cantidad de palabras: "
-mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (incluye espacios): "
+mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (letras): "
 mensaje_contador_vocales: .asciiz "Cantidad de vocales: "
 mensaje_contador_consonantes: .asciiz "Cantidad de consonantes: "
 
@@ -42,7 +41,9 @@ bucle_conteo:
     lb $t7, 0($t0)              # Leer el siguiente carácter
     beq $t7, $zero, fin_bucle   # Si es el fin de la cadena, salir del bucle
 
-    # Contar caracteres (letras y espacios)
+    # Contar caracteres (letras)
+    blt $t7, 65, siguiente_caracter # Saltar caracteres no alfabéticos
+    bgt $t7, 122, siguiente_caracter
     addi $t3, $t3, 1            # Incrementar contador de caracteres
 
     # Comprobar si el carácter es un espacio
