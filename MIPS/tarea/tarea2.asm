@@ -1,5 +1,5 @@
 .data
-mensaje_solicitud: .asciiz "¡Hola!\nPor favor ingrese una frase o palabra para analizarla:"
+mensaje_solicitud: .asciiz "¡Hola!\nPor favor ingrese una frase o palabra para analizarla: "
 vocales: .asciiz "aeiouAEIOU"
 consonantes: .asciiz "bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ"
 buffer: .space 100
