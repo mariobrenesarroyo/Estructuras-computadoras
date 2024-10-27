@@ -65,6 +65,7 @@ espacio_detectado:
 caracter_detectado:
     # Contar vocales y consonantes
     la $t1, vocales             # Dirección de 'vocales'
+    la $t9, consonantes         # Dirección de 'consonantes'
 
 verificar_vocal:
     lb $t8, 0($t1)              # Cargar vocal
