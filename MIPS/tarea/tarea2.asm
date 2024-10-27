@@ -47,10 +47,12 @@ bucle_conteo:
     lb $t7, 0($t0)              # Leer el siguiente carácter
     beq $t7, $zero, fin_bucle   # Si es el fin de la cadena, salir del bucle
 
-    # Contar caracteres (solo letras)
-    blt $t7, 65, espacio_detectado
-    bgt $t7, 122, siguiente_caracter
+    # Comprobar si el carácter es un espacio
+    beq $t7, 32, espacio_detectado
+
+   # Contar caracteres (solo letras)
     addi $t3, $t3, 1            # Incrementar contador de caracteres
+
 
     # Contar vocales
     la $t1, vocales             # Dirección de 'vocales'
