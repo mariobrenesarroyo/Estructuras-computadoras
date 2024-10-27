@@ -47,7 +47,7 @@ bucle_conteo:
     # Contar caracteres (solo letras)
     addi $t3, $t3, 1            # Incrementar contador de caracteres
 
-    # Contar vocales
+    # Comprobar si es vocal
     la $t1, vocales             # Dirección de 'vocales'
 verificar_vocal:
     lb $t8, 0($t1)              # Cargar vocal
@@ -83,7 +83,7 @@ nueva_palabra:
 
 espacio_detectado:
     addi $t6, $zero, 0          # Establecer que estamos fuera de una palabra
-    j bucle_conteo
+    j siguiente_caracter
 
 siguiente_caracter:
     addi $t0, $t0, 1            # Avanzar al siguiente carácter
