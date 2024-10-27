@@ -1,7 +1,11 @@
 .data
 mensaje_solicitud: .asciiz "Ingrese una frase: "
 vocales: .asciiz "aeiou"
+<<<<<<< HEAD
+buffer: .asciiz "Hoy es Domingo"  # Frase predefinida
+=======
 buffer: .space 100
+>>>>>>> origin/main
 mensaje_contador_palabras: .asciiz "Cantidad de palabras: "
 mensaje_contador_caracteres: .asciiz "Cantidad de caracteres: "
 mensaje_contador_vocales: .asciiz "Cantidad de vocales: "
