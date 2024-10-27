@@ -138,28 +138,3 @@ fin_bucle:
     addi $v0, $zero, 4
     la $a0, mensaje_contador_vocales
     syscall
-    addi $v0, $zero, 1
-    lw $a0, contador_vocales
-    syscall
-
-    # Imprimir salto de línea
-    li $v0, 11
-    li $a0, 10
-    syscall
-
-    # Contador de consonantes
-    addi $v0, $zero, 4
-    la $a0, mensaje_contador_consonantes
-    syscall
-    addi $v0, $zero, 1
-    lw $a0, contador_consonantes
-    syscall
-
-    # Imprimir salto de línea
-    li $v0, 11
-    li $a0, 10
-    syscall
-
-    # Salir del programa
-    addi $v0, $zero, 10
-    syscall
