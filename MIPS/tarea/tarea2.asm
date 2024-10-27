@@ -1,7 +1,7 @@
 .data
 mensaje_solicitud: .asciiz "Ingrese una frase: "
 vocales: .asciiz "aeiou"
-buffer: .asciiz "Hoy es domingo y el mes es Octubre"  # Frase predefinida
+buffer: .asciiz "Hoy es Domingo"  # Frase predefinida
 mensaje_contador_palabras: .asciiz "Cantidad de palabras: "
 mensaje_contador_caracteres: .asciiz "Cantidad de caracteres: "
 mensaje_contador_vocales: .asciiz "Cantidad de vocales: "
