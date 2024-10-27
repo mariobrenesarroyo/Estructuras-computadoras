@@ -45,17 +45,19 @@ bucle_conteo:
     beq $t6, 32, espacio_detectado
 
     # Comprobar si el carácter es una letra
-    blt $t6, 65, verificar_no_letra   # Si es menor que 'A'
-    bgt $t6, 122, verificar_no_letra  # Si es mayor que 'z'
-    beq $t6, 91, verificar_no_letra   # Si es igual a 'Z'
-    beq $t6, 96, verificar_no_letra   # Si es igual a '`'
+    li $t7, 65                  # ASCII 'A'
+    li $t8, 90                  # ASCII 'Z'
+    li $t9, 97                  # ASCII 'a'
+    li $t10, 122                # ASCII 'z'
 
+    blt $t6, $t7, verificar_no_letra  # Si es menor que 'A'
+    bgt $t6, $t10, verificar_no_letra # Si es mayor que 'z'
     # Si es letra, verificar si es vocal
     la $t1, vocales              # Dirección de 'vocales'
 verificar_vocal:
-    lb $t7, 0($t1)              # Cargar vocal
-    beq $t7, $zero, detectar_consonante
-    beq $t6, $t7, detectar_vocal
+    lb $t11, 0($t1)              # Cargar vocal
+    beq $t11, $zero, detectar_consonante
+    beq $t6, $t11, detectar_vocal
     addi $t1, $t1, 1
     j verificar_vocal
 
