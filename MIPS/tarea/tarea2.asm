@@ -37,12 +37,6 @@ main:
     addi $t5, $zero, 0          # Contador de consonantes
     addi $t6, $zero, 0          # Indicador de palabra (0 = fuera de palabra, 1 = en palabra)
 
-    # Comprobar si el primer carácter es una palabra
-    lb $t7, 0($t0)              # Leer el primer carácter
-    beq $t7, $zero, fin_bucle   # Si es el fin de la cadena, salir del bucle
-    beq $t7, 32, bucle_conteo   # Si es un espacio, no es una palabra
-    addi $t2, $t2, 1            # Incrementar contador de palabras
-
 bucle_conteo:
     lb $t7, 0($t0)              # Leer el siguiente carácter
     beq $t7, $zero, fin_bucle   # Si es el fin de la cadena, salir del bucle
@@ -50,9 +44,8 @@ bucle_conteo:
     # Comprobar si el carácter es un espacio
     beq $t7, 32, espacio_detectado
 
-   # Contar caracteres (solo letras)
+    # Contar caracteres (solo letras)
     addi $t3, $t3, 1            # Incrementar contador de caracteres
-
 
     # Contar vocales
     la $t1, vocales             # Dirección de 'vocales'
