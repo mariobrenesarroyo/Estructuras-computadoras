@@ -1,10 +1,10 @@
 .data
 mensaje_solicitud: .asciiz "¡Hola!\nPor favor ingrese una frase o palabra para analizarla: "
-vocales: .asciiz "aeiouAEIOU"  # Vocales en minúsculas y mayúsculas
+vocales: .asciiz "aeiouAEIOU"
 buffer: .space 100
 mensaje_resultados: .asciiz "Resultados:\n"
 mensaje_contador_palabras: .asciiz "Cantidad de palabras: "
-mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (incluidos espacios): "
+mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (letras): "
 mensaje_contador_vocales: .asciiz "Cantidad de vocales: "
 mensaje_contador_consonantes: .asciiz "Cantidad de consonantes: "
 contador_palabras: .word 0
@@ -26,70 +26,79 @@ main:
     syscall
 
     # Inicializar registros
-    la $t0, buffer              # Dirección de 'buffer'
-    addi $t1, $zero, 0          # Contador de palabras
-    addi $t2, $zero, 0          # Contador de caracteres
-    addi $t3, $zero, 0          # Contador de vocales
-    addi $t4, $zero, 0          # Contador de consonantes
-    addi $t5, $zero, 0          # Indicador de palabra (0 = fuera de palabra, 1 = en palabra)
+    la $t0, buffer
+    la $t1, vocales
+    addi $t2, $zero, 0          # Contador de palabras
+    addi $t3, $zero, 0          # Contador de caracteres
+    addi $t4, $zero, 0          # Contador de vocales
+    addi $t5, $zero, 0          # Contador de consonantes
+    addi $t6, $zero, 0          # Indicador de palabra (0 = fuera de palabra, 1 = en palabra)
+    addi $t7, $zero, 32         # Código ASCII para espacio
 
     # Contar palabras, caracteres, vocales y consonantes
 bucle_conteo:
-    lb $t6, 0($t0)              # Leer el siguiente carácter
-    beq $t6, $zero, fin_bucle   # Si es el fin de la cadena, salir del bucle
-
-    # Contar caracteres totales (incluidos espacios)
-    addi $t2, $t2, 1            # Incrementar contador de caracteres
+    lb $t8, 0($t0)              # Leer el siguiente carácter
+    beqz $t8, fin_bucle         # Si es el fin de la cadena, salir del bucle
 
     # Comprobar si el carácter es un espacio
-    beq $t6, 32, espacio_detectado
+    bnez $t8, verificar_letra
 
+    # Si es un espacio, contar como caracter y continuar
+    addi $t3, $t3, 1            # Incrementar contador de caracteres
+    j bucle_conteo
+
+verificar_letra:
     # Comprobar si el carácter es una letra
-    li $t7, 65                  # ASCII 'A'
-    li $t8, 90                  # ASCII 'Z'
-    li $t9, 97                  # ASCII 'a'
-    li $t10, 122                # ASCII 'z'
+    blt $t8, 65, verificar_minuscuela
+    ble $t8, 91, verificar_minuscuela
+    bleu $t8, 122, verificar_minuscuela
+    j siguiente_caracter
 
-    blt $t6, $t7, verificar_no_letra  # Si es menor que 'A'
-    bgt $t6, $t10, verificar_no_letra # Si es mayor que 'z'
-    # Si es letra, verificar si es vocal
-    la $t1, vocales              # Dirección de 'vocales'
+verificar_minuscuela:
+    blt $t8, 97, siguiente_caracter
+    ble $t8, 123, siguiente_caracter
+    j verificar_mayusculas
+
+verificar_mayusculas:
+    blt $t8, 65, siguiente_caracter
+    ble $t8, 90, siguiente_caracter
+    j siguiente_caracter
+
+siguiente_caracter:
+    # Contar vocales y consonantes
+    la $t9, vocales             # Dirección de 'vocales'
+    addi $t9, $t9, 0           # Preparar para loop
+    addi $t10, $zero, 0        # Contador interno para verificar vocales
+
 verificar_vocal:
-    lb $t11, 0($t1)              # Cargar vocal
-    beq $t11, $zero, detectar_consonante
-    beq $t6, $t11, detectar_vocal
-    addi $t1, $t1, 1
+    lb $t11, 0($t9)            # Cargar vocal
+    beqz $t11, detectar_consonante
+    beq $t8, $t11, detectar_vocal
+    addi $t9, $t9, 1
     j verificar_vocal
 
 detectar_vocal:
-    addi $t3, $t3, 1            # Incrementar contador de vocales
+    addi $t4, $t4, 1            # Incrementar contador de vocales
     j siguiente_caracter
 
 detectar_consonante:
-    addi $t4, $t4, 1            # Incrementar contador de consonantes
+    addi $t5, $t5, 1            # Incrementar contador de consonantes
 
-siguiente_caracter:
-    addi $t0, $t0, 1            # Avanzar al siguiente carácter
-    addi $t5, $zero, 1          # Establecer que estamos en una palabra
-    j bucle_conteo
+    # Actualizar indicadores de palabra
+    beq $t6, $zero, nueva_palabra
+    j siguiente_caracter
 
-espacio_detectado:
-    beq $t5, $zero, bucle_conteo # Si ya está fuera de palabra, seguir
-    addi $t1, $t1, 1            # Incrementar contador de palabras
-    addi $t5, $zero, 0          # Establecer que estamos fuera de una palabra
-    j bucle_conteo
+nueva_palabra:
+    addi $t2, $t2, 1            # Incrementar contador de palabras
+    addi $t6, $zero, 1          # Establecer que estamos en una palabra
+    j siguiente_caracter
 
 fin_bucle:
-    # Al final del bucle, si el último carácter no es espacio, contamos la última palabra
-    beq $t5, $zero, finalizar
-    addi $t1, $t1, 1            # Contar la última palabra
-
-finalizar:
     # Guardar los resultados en memoria
-    sw $t1, contador_palabras
-    sw $t2, contador_caracteres
-    sw $t3, contador_vocales
-    sw $t4, contador_consonantes
+    sw $t2, contador_palabras
+    sw $t3, contador_caracteres
+    sw $t4, contador_vocales
+    sw $t5, contador_consonantes
 
     # Imprimir resultados
     addi $v0, $zero, 4
@@ -106,7 +115,7 @@ finalizar:
 
     # Imprimir salto de línea
     li $v0, 11
-    li $a0, 10  # Código ASCII para nueva línea
+    li $a0, 10
     syscall
 
     # Contador de caracteres
