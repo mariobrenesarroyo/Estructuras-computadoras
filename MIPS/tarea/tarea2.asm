@@ -32,7 +32,6 @@ main:
     la $t1, vocales             # Dirección de 'vocales'
     la $t9, consonantes         # Dirección de 'consonantes'
     addi $t2, $zero, 0          # Contador de palabras
-    addi $t3, $zero, 0          # Contador de caracteres
     addi $t4, $zero, 0          # Contador de vocales
     addi $t5, $zero, 0          # Contador de consonantes
     addi $t6, $zero, 0          # Indicador de palabra (0 = fuera de palabra, 1 = en palabra)
@@ -45,9 +44,10 @@ bucle_conteo:
     beq $t7, 32, espacio_detectado
 
     # Contar caracteres (solo letras)
+    # Inicialmente se incrementará cuando se detecte una vocal o consonante
     addi $t3, $t3, 1            # Incrementar contador de caracteres
 
-    # Comprobar si es vocal
+    # Contar vocales
     la $t1, vocales             # Dirección de 'vocales'
 verificar_vocal:
     lb $t8, 0($t1)              # Cargar vocal
@@ -92,9 +92,12 @@ siguiente_caracter:
 fin_bucle:
     # Guardar los resultados en memoria
     sw $t2, contador_palabras
-    sw $t3, contador_caracteres
     sw $t4, contador_vocales
     sw $t5, contador_consonantes
+
+    # Calcular el total de caracteres como suma de vocales y consonantes
+    add $t3, $t4, $t5            # Total caracteres = vocales + consonantes
+    sw $t3, contador_caracteres
 
     # Imprimir resultados
     addi $v0, $zero, 4
