@@ -5,7 +5,7 @@ consonantes: .asciiz "bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ"
 buffer: .space 100
 mensaje_resultados: .asciiz "Resultados:\n"
 mensaje_contador_palabras: .asciiz "Cantidad de palabras: "
-mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (letras): "
+mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (incluye espacios): "
 mensaje_contador_vocales: .asciiz "Cantidad de vocales: "
 mensaje_contador_consonantes: .asciiz "Cantidad de consonantes: "
 
@@ -37,18 +37,22 @@ main:
     addi $t5, $zero, 0          # Contador de consonantes
     addi $t6, $zero, 0          # Indicador de palabra (0 = fuera de palabra, 1 = en palabra)
 
+    # Comprobar si el primer carácter es una palabra
+    lb $t7, 0($t0)              # Leer el primer carácter
+    beq $t7, $zero, fin_bucle   # Si es el fin de la cadena, salir del bucle
+    beq $t7, 32, bucle_conteo   # Si es un espacio, no es una palabra
+    addi $t2, $t2, 1            # Incrementar contador de palabras
+
 bucle_conteo:
     lb $t7, 0($t0)              # Leer el siguiente carácter
     beq $t7, $zero, fin_bucle   # Si es el fin de la cadena, salir del bucle
 
-    # Contar caracteres (letras)
-    blt $t7, 65, siguiente_caracter # Saltar caracteres no alfabéticos
-    bgt $t7, 122, siguiente_caracter
+    # Contar caracteres (incluye espacios)
     addi $t3, $t3, 1            # Incrementar contador de caracteres
 
     # Comprobar si el carácter es un espacio
     beq $t7, 32, espacio_detectado
-    
+
     # Si no es un espacio
     beq $t6, $zero, nueva_palabra  # Si no estamos en una palabra, estamos en una nueva
     j caracter_detectado          # Si ya estamos en una palabra, solo contamos
