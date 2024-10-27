@@ -4,7 +4,7 @@ vocales: .asciiz "aeiouAEIOU"  # Vocales en minúsculas y mayúsculas
 buffer: .space 100
 mensaje_resultados: .asciiz "Resultados:\n"
 mensaje_contador_palabras: .asciiz "Cantidad de palabras: "
-mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (letras): "
+mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (incluidos espacios): "
 mensaje_contador_vocales: .asciiz "Cantidad de vocales: "
 mensaje_contador_consonantes: .asciiz "Cantidad de consonantes: "
 contador_palabras: .word 0
@@ -38,11 +38,11 @@ bucle_conteo:
     lb $t6, 0($t0)              # Leer el siguiente carácter
     beq $t6, $zero, fin_bucle   # Si es el fin de la cadena, salir del bucle
 
+    # Contar caracteres totales (incluidos espacios)
+    addi $t2, $t2, 1            # Incrementar contador de caracteres
+
     # Comprobar si el carácter es un espacio
     beq $t6, 32, espacio_detectado
-
-    # Contar caracteres
-    addi $t2, $t2, 1            # Incrementar contador de caracteres
 
     # Comprobar si el carácter es una letra
     blt $t6, 65, verificar_no_letra   # Si es menor que 'A'
@@ -78,6 +78,11 @@ espacio_detectado:
     j bucle_conteo
 
 fin_bucle:
+    # Al final del bucle, si el último carácter no es espacio, contamos la última palabra
+    beq $t5, $zero, finalizar
+    addi $t1, $t1, 1            # Contar la última palabra
+
+finalizar:
     # Guardar los resultados en memoria
     sw $t1, contador_palabras
     sw $t2, contador_caracteres
