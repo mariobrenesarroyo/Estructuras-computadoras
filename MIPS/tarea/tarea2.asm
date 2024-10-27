@@ -1,7 +1,11 @@
 .data
 mensaje_solicitud: .asciiz "Ingrese una frase: "
 vocales: .asciiz "aeiou"
+<<<<<<< HEAD
 buffer: .asciiz "Hoy es Domingo"  # Frase predefinida
+=======
+buffer: .space 100
+>>>>>>> origin/main
 mensaje_contador_palabras: .asciiz "Cantidad de palabras: "
 mensaje_contador_caracteres: .asciiz "Cantidad de caracteres: "
 mensaje_contador_vocales: .asciiz "Cantidad de vocales: "
@@ -13,15 +17,26 @@ contador_consonantes: .word 0
 
 .text
 main:
-    # Imprimir el mensaje de solicitud (ya no es necesario ingresar frase)
+    # Imprimir el mensaje de solicitud
     addi $v0, $zero, 4
+
+    # Cargar dirección de 'mensaje_solicitud' en $a0 usando 'lui' y 'ori'
     lui $a0, 0x1001             # Parte alta de la dirección de 'mensaje_solicitud'
     ori $a0, $a0, 0x0000        # Parte baja de la dirección
     syscall
 
+    # Leer la entrada del usuario
+    addi $v0, $zero, 8
+
+    # Cargar dirección de 'buffer' en $a0 usando 'lui' y 'ori'
+    lui $a0, 0x1001             # Parte alta de la dirección de 'buffer'
+    ori $a0, $a0, 0x0020        # Parte baja de la dirección
+    addi $a1, $zero, 100
+    syscall
+
     # Inicializar registros
     lui $t0, 0x1001
-    ori $t0, $t0, 0x0020        # Dirección de 'buffer' (donde está la frase)
+    ori $t0, $t0, 0x0020        # Dirección de 'buffer'
     lui $t1, 0x1001
     ori $t1, $t1, 0x0030        # Dirección de 'vocales'
     addi $t2, $zero, 0          # Contador de palabras
