@@ -1,8 +1,8 @@
 .data
 mensaje_solicitud: .asciiz "¡Hola!\nPor favor ingrese una frase o palabra para analizarla: "
-vocales: .asciiz "aeiouAEIOU"  # Agregar mayúsculas para contar vocales
+vocales: .asciiz "aeiouAEIOU"  # Vocales en minúsculas y mayúsculas
 buffer: .space 100
-mensaje_resultados: .asciiz "Resultados:\n\n"
+mensaje_resultados: .asciiz "Resultados:\n"
 mensaje_contador_palabras: .asciiz "Cantidad de palabras: "
 mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (letras): "
 mensaje_contador_vocales: .asciiz "Cantidad de vocales: "
@@ -16,12 +16,12 @@ contador_consonantes: .word 0
 main:
     # Imprimir el mensaje de solicitud
     addi $v0, $zero, 4
-    la $a0, mensaje_solicitud  # Cargar dirección de 'mensaje_solicitud'
+    la $a0, mensaje_solicitud
     syscall
 
     # Leer la entrada del usuario
     addi $v0, $zero, 8
-    la $a0, buffer              # Cargar dirección de 'buffer'
+    la $a0, buffer
     addi $a1, $zero, 100
     syscall
 
@@ -37,7 +37,7 @@ main:
     # Contar palabras, caracteres, vocales y consonantes
 bucle_conteo:
     lb $t7, 0($t0)              # Leer el siguiente carácter
-    beq $t7, $zero, fin_bucle    # Si es el fin de la cadena, salir del bucle
+    beq $t7, $zero, fin_bucle   # Si es el fin de la cadena, salir del bucle
 
     # Contar caracteres
     addi $t3, $t3, 1            # Incrementar contador de caracteres
@@ -99,12 +99,22 @@ fin_bucle:
     lw $a0, contador_palabras
     syscall
 
+    # Imprimir salto de línea
+    li $v0, 11
+    li $a0, 10  # Código ASCII para nueva línea
+    syscall
+
     # Contador de caracteres
     addi $v0, $zero, 4
     la $a0, mensaje_contador_caracteres
     syscall
     addi $v0, $zero, 1
     lw $a0, contador_caracteres
+    syscall
+
+    # Imprimir salto de línea
+    li $v0, 11
+    li $a0, 10
     syscall
 
     # Contador de vocales
@@ -115,12 +125,22 @@ fin_bucle:
     lw $a0, contador_vocales
     syscall
 
+    # Imprimir salto de línea
+    li $v0, 11
+    li $a0, 10
+    syscall
+
     # Contador de consonantes
     addi $v0, $zero, 4
     la $a0, mensaje_contador_consonantes
     syscall
     addi $v0, $zero, 1
     lw $a0, contador_consonantes
+    syscall
+
+    # Imprimir salto de línea
+    li $v0, 11
+    li $a0, 10
     syscall
 
     # Salir del programa
