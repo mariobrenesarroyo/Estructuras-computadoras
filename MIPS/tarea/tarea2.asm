@@ -1,5 +1,5 @@
 .data
-mensaje_solicitud: .asciiz "¡Hola!\nPor favor ingrese una frase o palabra para analizarla: "
+mensaje_solicitud: .asciiz "¡Hola!\nPor favor ingrese una frase o palabra para analizarla:"
 vocales: .asciiz "aeiouAEIOU"
 consonantes: .asciiz "bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ"
 espacio: .asciiz " "
@@ -32,7 +32,6 @@ main:
     la $t0, buffer              # Dirección de 'buffer'
     la $t1, vocales             # Dirección de 'vocales'
     la $t9, consonantes         # Dirección de 'consonantes'
-    la $t10, espacio            # Dirección de 'espacio'
     addi $t2, $zero, 0          # Contador de palabras
     addi $t3, $zero, 0          # Contador de caracteres
     addi $t4, $zero, 0          # Contador de vocales
