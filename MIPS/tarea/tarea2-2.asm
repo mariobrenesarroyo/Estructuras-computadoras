@@ -6,11 +6,11 @@ buffer: .space 100
 MAYUSCULAS: .asciiz "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
 minusculas: .asciiz "abcdefghijklmnñopqrstuvwxyz"
 mensaje_resultados: .asciiz "Resultados:\n"
-mensaje_contador_palabras: .asciiz "Cantidad de palabras: "
-mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (letras): "
-mensaje_contador_vocales: .asciiz "Cantidad de vocales: "
-mensaje_contador_consonantes: .asciiz "Cantidad de consonantes: "
-mensaje_contador_mayusculas: .asciiz "Cantidad de MAYUSCULAS: "
+mensaje_contador_palabras: .asciiz "Cantidad de palabras: \n"
+mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (letras): \n"
+mensaje_contador_vocales: .asciiz "Cantidad de vocales: \n"
+mensaje_contador_consonantes: .asciiz "Cantidad de consonantes: \n"
+mensaje_contador_mayusculas: .asciiz "Cantidad de MAYUSCULAS: \n"
 mensaje_contador_minusculas: .asciiz "Cantidad de minusculas: "
 
 contador_palabras: .word 0
