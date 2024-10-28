@@ -36,15 +36,15 @@ main:
     # Inicializar registros
     la $t0, buffer              # Dirección de 'buffer'
     la $t1, vocales             # Dirección de 'vocales'
-    la $t9, consonantes         # Dirección de 'consonantes'
-    la $t10, MAYUSCULAS         # Dirección de 'MAYUSCULAS'
-    la $t11, minusculas         # Dirección de 'minusculas'
+    la $s0, consonantes         # Dirección de 'consonantes'
+    la $s1, MAYUSCULAS          # Dirección de 'MAYUSCULAS'
+    la $s2, minusculas          # Dirección de 'minusculas'
     addi $t2, $zero, 0          # Contador de palabras
     addi $t4, $zero, 0          # Contador de vocales
     addi $t5, $zero, 0          # Contador de consonantes
     addi $t6, $zero, 0          # Indicador de palabra (0 = fuera de palabra, 1 = en palabra)
-    addi $t12, $zero, 0         # Contador de mayúsculas
-    addi $t13, $zero, 0         # Contador de minúsculas
+    addi $s3, $zero, 0          # Contador de mayúsculas
+    addi $s4, $zero, 0          # Contador de minúsculas
 
 bucle_conteo:
     lb $t7, 0($t0)              # Leer el siguiente carácter
@@ -70,41 +70,41 @@ detectar_vocal:
     j verificar_mayuscula       # Saltar a verificación de mayúsculas/minúsculas
 
 verificar_consonante:
-    la $t9, consonantes         # Dirección de 'consonantes'
+    la $s0, consonantes         # Dirección de 'consonantes'
 verificar_consonante_2:
-    lb $t8, 0($t9)              # Cargar consonante
+    lb $t8, 0($s0)              # Cargar consonante
     beq $t8, $zero, verificar_mayuscula
     beq $t7, $t8, detectar_consonante
-    addi $t9, $t9, 1
+    addi $s0, $s0, 1
     j verificar_consonante_2
 
 detectar_consonante:
     addi $t5, $t5, 1            # Incrementar contador de consonantes
 
 verificar_mayuscula:
-    la $t10, MAYUSCULAS         # Dirección de 'MAYUSCULAS'
+    la $s1, MAYUSCULAS          # Dirección de 'MAYUSCULAS'
 verificar_mayuscula_2:
-    lb $t8, 0($t10)             # Cargar mayúscula
+    lb $t8, 0($s1)              # Cargar mayúscula
     beq $t8, $zero, verificar_minuscula
     beq $t7, $t8, detectar_mayuscula
-    addi $t10, $t10, 1
+    addi $s1, $s1, 1
     j verificar_mayuscula_2
 
 detectar_mayuscula:
-    addi $t12, $t12, 1          # Incrementar contador de mayúsculas
+    addi $s3, $s3, 1            # Incrementar contador de mayúsculas
     j palabra_detectada
 
 verificar_minuscula:
-    la $t11, minusculas         # Dirección de 'minusculas'
+    la $s2, minusculas          # Dirección de 'minusculas'
 verificar_minuscula_2:
-    lb $t8, 0($t11)             # Cargar minúscula
+    lb $t8, 0($s2)              # Cargar minúscula
     beq $t8, $zero, palabra_detectada
     beq $t7, $t8, detectar_minuscula
-    addi $t11, $t11, 1
+    addi $s2, $s2, 1
     j verificar_minuscula_2
 
 detectar_minuscula:
-    addi $t13, $t13, 1          # Incrementar contador de minúsculas
+    addi $s4, $s4, 1            # Incrementar contador de minúsculas
 
 palabra_detectada:
     beq $t6, $zero, nueva_palabra
@@ -128,8 +128,8 @@ fin_bucle:
     sw $t2, contador_palabras
     sw $t4, contador_vocales
     sw $t5, contador_consonantes
-    sw $t12, contador_mayusculas
-    sw $t13, contador_minusculas
+    sw $s3, contador_mayusculas
+    sw $s4, contador_minusculas
 
     # Calcular el total de caracteres como suma de vocales y consonantes
     add $t3, $t4, $t5            # Total caracteres = vocales + consonantes
@@ -188,6 +188,6 @@ fin_bucle:
     lw $a0, contador_minusculas
     syscall
 
-    # Salir del programa
-    addi $v0, $zero, 10
+    # Terminar el programa
+    li $v0, 10
     syscall
