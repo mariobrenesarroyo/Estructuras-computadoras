@@ -1,121 +1,168 @@
 .data
-prompt_vi:   .asciiz "Introduce Vi: "
-prompt_vf:   .asciiz "Introduce Vf: "
-prompt_a:    .asciiz "Introduce A: "
-prompt_d:    .asciiz "Introduce D: "
-prompt_t:    .asciiz "Introduce t: "
-error_msg:  .asciiz "Error: No es un numero valido.\n"
-pos_msg:    .asciiz " es positivo\n"
-neg_msg:    .asciiz " es negativo\n"
-zero_msg:   .asciiz " es cero\n"
-x:          .asciiz "x"
-n:          .asciiz "n"
+    prompt1: .asciiz "¡Bienvenido a la calculadora MRUA!\n\n"
+    prompt2: .asciiz "Por favor ingrese los datos siguientes:\n"
+    prompt3: .asciiz "Velocidad inicial (m/s): "
+    prompt4: .asciiz "Velocidad final (m/s): "
+    prompt5: .asciiz "Aceleracion (m/s²): "
+    prompt6: .asciiz "Distancia (m): "
+    prompt7: .asciiz "Tiempo (s): "
+    prompt8: .asciiz "Ingrese una 'x' para el dato que desea calcular y una 'n' para el dato excluido: "
+    result: .asciiz "\nResultados:\n"
+    vel_init_msg: .asciiz "Velocidad inicial: "
+    vel_final_msg: .asciiz "Velocidad final: "
+    acceleration_msg: .asciiz "Aceleracion: "
+    distance_msg: .asciiz "Distancia: "
+    time_msg: .asciiz "Tiempo: "
+    input_error: .asciiz "Error en la entrada. Por favor ingrese un valor correcto.\n"
+    negative_error: .asciiz "ADVERTENCIA: NO PUEDE INGRESAR VALORES NEGATIVOS. INTÉNTELO DE NUEVO.\n"
+    exclusion_error: .asciiz "ADVERTENCIA: NO PUEDE EXCLUIR LA VELOCIDAD INICIAL. INTÉNTELO DE NUEVO.\n"
+
+    # Variables para almacenar los datos ingresados por el usuario
+    Vi: .float 0.0
+    Vf: .float 0.0
+    a: .float 0.0
+    d: .float 0.0
+    t: .float 0.0
+    exclusion_flag: .word 0  # Flag de exclusión (0 = no hay exclusión, 1 = exclusión incorrecta)
 
 .text
-.globl main
+    .globl main
 
 main:
-    # Pedir Vi
-    li $v0, 4                  # Imprimir mensaje
-    la $a0, prompt_vi
-    syscall
-    li $v0, 12                 # Leer un carácter ASCII
-    syscall
-    move $t0, $v0              # Guardar el valor en $t0
-    jal process_input          # Procesar la entrada
-
-    # Pedir Vf
-    li $v0, 4                  # Imprimir mensaje
-    la $a0, prompt_vf
-    syscall
-    li $v0, 12                 # Leer un carácter ASCII
-    syscall
-    move $t0, $v0              # Guardar el valor en $t0
-    jal process_input          # Procesar la entrada
-
-    # Pedir A
-    li $v0, 4                  # Imprimir mensaje
-    la $a0, prompt_a
-    syscall
-    li $v0, 12                 # Leer un carácter ASCII
-    syscall
-    move $t0, $v0              # Guardar el valor en $t0
-    jal process_input          # Procesar la entrada
-
-    # Pedir D
-    li $v0, 4                  # Imprimir mensaje
-    la $a0, prompt_d
-    syscall
-    li $v0, 12                 # Leer un carácter ASCII
-    syscall
-    move $t0, $v0              # Guardar el valor en $t0
-    jal process_input          # Procesar la entrada
-
-    # Pedir t
-    li $v0, 4                  # Imprimir mensaje
-    la $a0, prompt_t
-    syscall
-    li $v0, 12                 # Leer un carácter ASCII
-    syscall
-    move $t0, $v0              # Guardar el valor en $t0
-    jal process_input          # Procesar la entrada
-
-    # Finalizar programa
-    li $v0, 10                 # Salir
-    syscall
-
-# Subrutina para procesar cada entrada
-process_input:
-    # Verificar si el carácter es un dígito numérico (ASCII '0' a '9') o una letra 'n' o 'x'
-    li $t1, 48                 # ASCII de '0' es 48
-    li $t2, 57                 # ASCII de '9' es 57
-    li $t3, 120                # ASCII de 'x' es 120
-    li $t4, 110                # ASCII de 'n' es 110
-    blt $t0, $t1, error        # Si el carácter es menor que '0', es un error
-    bgt $t0, $t2, not_number   # Si el carácter es mayor que '9', no es un número
-
-    # Convertir el carácter ASCII a un valor numérico
-    sub $t0, $t0, $t1          # Restar 48 para obtener el valor numérico
-    bgt $t0, $zero, pos_num    # Si es mayor que 0, es positivo
-    blt $t0, $zero, neg_num    # Si es menor que 0, es negativo
-    li $v0, 4                  # Si el número es 0
-    la $a0, zero_msg
-    syscall
-    j end_process
-
-not_number:
-    # Verificar si es una letra 'x' o 'n'
-    beq $t0, $t3, pos_num      # Si es 'x', es positivo
-    beq $t0, $t4, neg_num      # Si es 'n', es negativo
-
-    # Si no es ni número ni 'x' ni 'n', es un error
-    li $v0, 4                  # Imprimir mensaje de error
-    la $a0, error_msg
-    syscall
-    j end_process
-
-pos_num:
+    # Imprimir bienvenida
     li $v0, 4
-    la $a0, pos_msg
+    la $a0, prompt1
     syscall
-    li $v0, 4                  # Imprimir "x"
-    la $a0, x
-    syscall
-    j end_process
 
-neg_num:
     li $v0, 4
-    la $a0, neg_msg
-    syscall
-    li $v0, 4                  # Imprimir "n"
-    la $a0, n
+    la $a0, prompt2
     syscall
 
-end_process:
-    jr $ra                     # Regresar a la función principal
-
-error:
-    li $v0, 4                  # Imprimir mensaje de error
-    la $a0, error_msg
+    # Pedir Velocidad Inicial
+    li $v0, 4
+    la $a0, prompt3
     syscall
-    jr $ra                     # Regresar a la función principal
+
+    li $v0, 6  # Leer float
+    syscall
+    s.s $f0, Vi  # Guardar el valor de Vi
+
+    # Verificar si el valor de Vi es negativo
+    l.s $f1, Vi
+    li.s $f2, 0.0  # 0.0 para comparación
+    c.lt.s $f1, $f2
+    bc1t input_error_check  # Si Vi es negativo, error
+
+    # Pedir Velocidad Final
+    li $v0, 4
+    la $a0, prompt4
+    syscall
+
+    li $v0, 6  # Leer float
+    syscall
+    s.s $f0, Vf  # Guardar el valor de Vf
+
+    # Verificar si el valor de Vf es negativo
+    l.s $f1, Vf
+    li.s $f2, 0.0  # 0.0 para comparación
+    c.lt.s $f1, $f2
+    bc1t input_error_check  # Si Vf es negativo, error
+
+    # Pedir Aceleración
+    li $v0, 4
+    la $a0, prompt5
+    syscall
+
+    li $v0, 6  # Leer float
+    syscall
+    s.s $f0, a  # Guardar el valor de a
+
+    # Verificar si el valor de a es negativo
+    l.s $f1, a
+    li.s $f2, 0.0  # 0.0 para comparación
+    c.lt.s $f1, $f2
+    bc1t input_error_check  # Si a es negativo, error
+
+    # Pedir Distancia
+    li $v0, 4
+    la $a0, prompt6
+    syscall
+
+    li $v0, 6  # Leer float
+    syscall
+    s.s $f0, d  # Guardar el valor de d
+
+    # Verificar si el valor de d es negativo
+    l.s $f1, d
+    li.s $f2, 0.0  # 0.0 para comparación
+    c.lt.s $f1, $f2
+    bc1t input_error_check  # Si d es negativo, error
+
+    # Pedir Tiempo
+    li $v0, 4
+    la $a0, prompt7
+    syscall
+
+    li $v0, 6  # Leer float
+    syscall
+    s.s $f0, t  # Guardar el valor de t
+
+    # Verificar si el valor de t es negativo
+    l.s $f1, t
+    li.s $f2, 0.0  # 0.0 para comparación
+    c.lt.s $f1, $f2
+    bc1t input_error_check  # Si t es negativo, error
+
+    # Pedir el dato a calcular
+    li $v0, 4
+    la $a0, prompt8
+    syscall
+
+    li $v0, 12  # Leer carácter
+    syscall
+    move $t0, $v0  # Guardar la opción de cálculo ('x' o 'n')
+
+    # Decidir qué calcular
+    # Verificar combinaciones de exclusión incorrectas
+    li $t1, 120  # ASCII de 'x'
+    beq $t0, $t1, verificar_exclusion
+    j calcular_dato
+
+verificar_exclusion:
+    # Comprobar si la exclusión es válida, no se puede excluir la Velocidad Inicial
+    li $v0, 4
+    la $a0, exclusion_error
+    syscall
+    j main  # Volver a pedir los datos
+
+input_error_check:
+    # Si hay un error de entrada, mostrar mensaje de error y volver a pedir los datos
+    li $v0, 4
+    la $a0, input_error
+    syscall
+    j main  # Volver a pedir los datos
+
+calcular_dato:
+    # Aquí vendrían los cálculos según el dato que falta (como se mostró en la primera parte)
+    # El flujo de cálculos depende de qué variable esté faltando
+
+    # Imprimir los resultados finales
+    li $v0, 4
+    la $a0, result
+    syscall
+
+    li $v0, 4
+    la $a0, vel_init_msg
+    syscall
+    l.s $f0, Vi
+    li $v0, 2  # Imprimir float
+    syscall
+
+    # Continuar con el resto de los resultados (Velocidad Final, Aceleración, Distancia, Tiempo)
+    # ...
+    
+    j fin
+
+fin:
+    li $v0, 10  # Salir del programa
+    syscall
