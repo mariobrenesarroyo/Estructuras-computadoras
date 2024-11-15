@@ -19,59 +19,67 @@ n: .asciiz "n"
 .text
 .globl main
 main:
-    # Pedir los valores y almacenarlos
-    jal leer_valor_Vi
-    jal leer_valor_Vf
-    jal leer_valor_A
-    jal leer_valor_D
-    jal leer_valor_T
+    # Pedir los valores
+    j pedir_Vi
+    j pedir_Vf
+    j pedir_A
+    j pedir_D
+    j pedir_t
 
-    # Verificar cuál valor es 'x' para calcular
+    # Verificar qué valor es 'x' para calcular
     jal verificar_calculo
 
     # Salir del programa
     li $v0, 10
     syscall
 
-# Función para leer el valor de Vi
-leer_valor_Vi:
+# Función para pedir Vi
+pedir_Vi:
     la $a0, promptVi
+    li $v0, 4      # Mostrar mensaje
+    syscall
     jal leer_valor
     move $t0, $v0  # Guardar Vi en $t0
     jr $ra
 
-# Función para leer el valor de Vf
-leer_valor_Vf:
+# Función para pedir Vf
+pedir_Vf:
     la $a0, promptVf
+    li $v0, 4      # Mostrar mensaje
+    syscall
     jal leer_valor
     move $t1, $v0  # Guardar Vf en $t1
     jr $ra
 
-# Función para leer el valor de A
-leer_valor_A:
+# Función para pedir A
+pedir_A:
     la $a0, promptA
+    li $v0, 4      # Mostrar mensaje
+    syscall
     jal leer_valor
     move $t2, $v0  # Guardar A en $t2
     jr $ra
 
-# Función para leer el valor de D
-leer_valor_D:
+# Función para pedir D
+pedir_D:
     la $a0, promptD
+    li $v0, 4      # Mostrar mensaje
+    syscall
     jal leer_valor
     move $t3, $v0  # Guardar D en $t3
     jr $ra
 
-# Función para leer el valor de T
-leer_valor_T:
+# Función para pedir T
+pedir_t:
     la $a0, promptT
+    li $v0, 4      # Mostrar mensaje
+    syscall
     jal leer_valor
     move $t4, $v0  # Guardar T en $t4
     jr $ra
 
-# Función para leer un valor general
+# Función para leer un valor
 leer_valor:
-    li $v0, 4      # Mostrar mensaje
-    syscall
     li $v0, 8      # Leer cadena
     la $a1, buffer
     li $a2, 2
