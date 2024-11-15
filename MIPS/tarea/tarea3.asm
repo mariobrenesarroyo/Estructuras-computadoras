@@ -66,7 +66,7 @@ leer_valor_t:
     move $t5, $v0  # Guardar t en $t5
     jr $ra
 
-# Leer valor general (x, n o número positivo)
+# Modificar la sección de leer_valor para asegurar la correcta ejecución después de ingresar 'x'
 leer_valor:
     li $v0, 4
     syscall
@@ -110,6 +110,7 @@ marcar_para_ignorar:
     li $v0, 0       # Valor temporal
     li $t7, 0       # Marcar para ignorar
     jr $ra
+
 
 # Mensaje de error si el dato ingresado es inválido
 error_dato_invalido:
