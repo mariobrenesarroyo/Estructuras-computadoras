@@ -1,167 +1,175 @@
 .data
-promptVi: .asciiz "Velocidad inicial (m/s) o 'x' si desconocida o 'n' si no disponible: "
-promptVf: .asciiz "Velocidad final (m/s) o 'x' si desconocida o 'n' si no disponible: "
-promptA: .asciiz "Aceleracion (m/s^2) o 'x' si desconocida o 'n' si no disponible: "
-promptD: .asciiz "Distancia (m) o 'x' si desconocida o 'n' si no disponible: "
-promptT: .asciiz "Tiempo (s) o 'x' si desconocido o 'n' si no disponible: "
-msgVi: .asciiz "Velocidad inicial calculada: "
-msgVf: .asciiz "Velocidad final calculada: "
-msgA: .asciiz "Aceleracion calculada: "
-msgD: .asciiz "Distancia calculada: "
-msgT: .asciiz "Tiempo calculado: "
-error: .asciiz "Error: No se puede calcular con los valores ingresados."
+prompts: .asciiz "Ingrese 'x' para calcular, 'n' para excluir o el valor numérico:\n"
+promptVi: .asciiz "Velocidad inicial (Vi): "
+promptVf: .asciiz "Velocidad final (Vf): "
+promptA: .asciiz "Aceleración (a): "
+promptD: .asciiz "Distancia (d): "
+promptT: .asciiz "Tiempo (t): "
+msgCalculoA: .asciiz "Calculando aceleración como predeterminado.\n"
+error: .asciiz "Error: Se ingresaron datos erroneos.\n"
+x: .asciiz "x"
+n: .asciiz "n"
 buffer: .space 2
-Vi: .word 0
-Vf: .word 0
-a: .word 0
-d: .word 0
-t: .word 0
-flagVi: .word 1
-flagVf: .word 1
-flagA: .word 1
-flagD: .word 1
-flagT: .word 1
 
 .text
-.global start
+main:
+    la $a0, prompts
+    li $v0, 4
+    syscall
 
-start:
-    jal main
+    # Leer entradas para Vi, Vf, a, d y t
+    jal leer_valor_Vi
+    jal leer_valor_Vf
+    jal leer_valor_a
+    jal leer_valor_d
+    jal leer_valor_t
 
-macro_leer_variable prompt, variable:
-    la $a0, prompt
+    # Verificar cuál variable tiene 'x'
+    jal verificar_x
+
+    # Salir del programa
+    li $v0, 10
+    syscall
+
+# Función para leer Vi
+leer_valor_Vi:
+    la $a0, promptVi
+    jal leer_valor
+    move $t1, $v0  # Guardar Vi en $t1
+    jr $ra
+
+# Función para leer Vf
+leer_valor_Vf:
+    la $a0, promptVf
+    jal leer_valor
+    move $t2, $v0  # Guardar Vf en $t2
+    jr $ra
+
+# Función para leer a
+leer_valor_a:
+    la $a0, promptA
+    jal leer_valor
+    move $t3, $v0  # Guardar a en $t3
+    jr $ra
+
+# Función para leer d
+leer_valor_d:
+    la $a0, promptD
+    jal leer_valor
+    move $t4, $v0  # Guardar d en $t4
+    jr $ra
+
+# Función para leer t
+leer_valor_t:
+    la $a0, promptT
+    jal leer_valor
+    move $t5, $v0  # Guardar t en $t5
+    jr $ra
+
+# Leer valor general (x, n o número positivo)
+leer_valor:
     li $v0, 4
     syscall
     li $v0, 8
     la $a1, buffer
     li $a2, 2
     syscall
-    lb $t0, buffer
-    beqz $t0, calcular_ignorar
-    beq $t0, 'n', ignorar_variable
+    lb $t6, buffer      # Leer primer caracter ingresado
+
+    # Comparar si es 'x' o 'n'
+    la $t7, x           # Cargar "x" en $t7
+    la $t8, n           # Cargar "n" en $t8
+    lb $t9, ($t7)       # Obtener valor ASCII de "x"
+    lb $t0, ($t8)       # Obtener valor ASCII de "n"
+
+    # Si es 'x', asignar marcador 2 para cálculo
+    beq $t6, $t9, marcar_para_calculo
+
+    # Si es 'n', asignar marcador 0 para ignorar
+    beq $t6, $t0, marcar_para_ignorar
+
+    # Si no es ni 'x' ni 'n', verificar si es un valor numérico
     li $v0, 5
     syscall
-    sw $v0, variable
-    return
+    move $t6, $v0  # Guardar el valor ingresado en $t6
 
-macro_calcular variable:
-    lw $t0, flagVi
-    lw $t1, flagVf
-    lw $t2, flagA
-    lw $t3, flagD
-    lw $t4, flagT
-    
-    li $t5, 4
-    add $t6, $t0, $t1
-    add $t6, $t6, $t2
-    add $t6, $t6, $t3
-    add $t6, $t6, $t4
-    li $t7, 4
-    sub $t6, $t6, $t7
-    beqz $t6, error_msg
+    # Verificar si el valor es negativo
+    bltz $t6, error_dato_invalido  # Si $t6 < 0, error
 
-    bnez $t0, calcular_vi
-    bnez $t1, calcular_vf
-    bnez $t2, calcular_a
-    bnez $t3, calcular_d
-    bnez $t4, calcular_t
+    # Guardar el valor como numérico y marcarlo como tal
+    li $t7, 1       # Marcar como valor numérico
+    move $v0, $t6   # Devolver el valor ingresado
+    jr $ra
 
-manejar_error:
+marcar_para_calculo:
+    li $v0, 0       # Valor temporal
+    li $t7, 2       # Marcar para cálculo
+    jr $ra
+
+marcar_para_ignorar:
+    li $v0, 0       # Valor temporal
+    li $t7, 0       # Marcar para ignorar
+    jr $ra
+
+# Mensaje de error si el dato ingresado es inválido
+error_dato_invalido:
     la $a0, error
     li $v0, 4
     syscall
-    j end
+    li $v0, 10      # Salir del programa
+    syscall
+
+# Verificar cuál variable tiene 'x' y es la única para cálculo
+verificar_x:
+    # Contar cuántas variables están marcadas para cálculo
+    li $t7, 0
+    addi $t7, $t7, $t1
+    addi $t7, $t7, $t2
+    addi $t7, $t7, $t3
+    addi $t7, $t7, $t4
+    addi $t7, $t7, $t5
+
+    # Si no hay ninguna variable con 'x', mostrar mensaje y calcular aceleración
+    beq $t7, 0, calcular_a_defecto
+
+    # Si solo hay una variable con 'x', hacer el cálculo de esa variable
+    li $t8, 2
+    beq $t1, $t8, calcular_vi
+    beq $t2, $t8, calcular_vf
+    beq $t3, $t8, calcular_a
+    beq $t4, $t8, calcular_d
+    beq $t5, $t8, calcular_t
+
+    # Si hay más de una 'x', mostrar mensaje de error
+    la $a0, error
+    li $v0, 4
+    syscall
+    jr $ra
+
+calcular_a_defecto:
+    la $a0, msgCalculoA
+    li $v0, 4
+    syscall
+    # Lógica para calcular aceleración como valor predeterminado
+    # Aquí iría el código para calcular 'a'
+    jr $ra
 
 calcular_vi:
-    # Vi = Vf - a * t
-    lw $t1, Vf
-    lw $t2, a
-    lw $t3, t
-    mul $t2, $t2, $t3
-    sub $t0, $t1, $t2
-    la $a0, msgVi
-    li $v0, 4
-    syscall
-    move $a0, $t0
-    li $v0, 1
-    syscall
-    j end
+    # Lógica para calcular Vi
+    jr $ra
 
 calcular_vf:
-    # Vf = Vi + a * t
-    lw $t1, Vi
-    lw $t2, a
-    lw $t3, t
-    mul $t2, $t2, $t3
-    add $t0, $t1, $t2
-    la $a0, msgVf
-    li $v0, 4
-    syscall
-    move $a0, $t0
-    li $v0, 1
-    syscall
-    j end
+    # Lógica para calcular Vf
+    jr $ra
 
 calcular_a:
-    # a = (Vf - Vi) / t
-    lw $t1, Vf
-    lw $t2, Vi
-    sub $t1, $t1, $t2
-    lw $t3, t
-    div $t1, $t3
-    mflo $t0
-    la $a0, msgA
-    li $v0, 4
-    syscall
-    move $a0, $t0
-    li $v0, 1
-    syscall
-    j end
+    # Lógica para calcular A
+    jr $ra
 
 calcular_d:
-    # d = Vi * t + (1/2) * a * t^2
-    lw $t1, Vi
-    lw $t2, t
-    mul $t1, $t1, $t2
-    lw $t3, a
-    mul $t3, $t3, $t2
-    srl $t3, $t3, 1
-    add $t0, $t1, $t3
-    la $a0, msgD
-    li $v0, 4
-    syscall
-    move $a0, $t0
-    li $v0, 1
-    syscall
-    j end
+    # Lógica para calcular D
+    jr $ra
 
 calcular_t:
-    # t = (Vf - Vi) / a
-    lw $t1, Vf
-    lw $t2, Vi
-    sub $t1, $t1, $t2
-    lw $t3, a
-    div $t1, $t3
-    mflo $t0
-    la $a0, msgT
-    li $v0, 4
-    syscall
-    move $a0, $t0
-    li $v0, 1
-    syscall
-    j end
-
-main:
-    macro_leer_variable promptVi, Vi
-    macro_leer_variable promptVf, Vf
-    macro_leer_variable promptA, a
-    macro_leer_variable promptD, d
-    macro_leer_variable promptT, t
-    j realizar_calculo
-
-realizar_calculo:
-    jal macro_calcular
-
-end:
-    li $v0, 10
-    syscall
+    # Lógica para calcular T
+    jr $ra
