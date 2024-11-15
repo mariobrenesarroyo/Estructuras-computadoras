@@ -16,16 +16,20 @@ Vf: .word 0
 a: .word 0
 d: .word 0
 t: .word 0
-flagVi: .word 1    # 1 si es válido, 0 si es "n"
+flagVi: .word 1
 flagVf: .word 1
 flagA: .word 1
 flagD: .word 1
 flagT: .word 1
 
 .text
-main:
-    # Leer Vi
-    la $a0, promptVi
+.global start
+
+start:
+    jal main
+
+macro_leer_variable prompt, variable:
+    la $a0, prompt
     li $v0, 4
     syscall
     li $v0, 8
@@ -33,125 +37,36 @@ main:
     li $a2, 2
     syscall
     lb $t0, buffer
-    li $t1, 'x'
-    li $t2, 'n'
-    beq $t0, $t1, calcular_vi
-    beq $t0, $t2, ignorar_vi
+    beqz $t0, calcular_ignorar
+    beq $t0, 'n', ignorar_variable
     li $v0, 5
     syscall
-    sw $v0, Vi
+    sw $v0, variable
+    return
 
-    # Leer Vf
-    la $a0, promptVf
-    li $v0, 4
-    syscall
-    li $v0, 8
-    la $a1, buffer
-    li $a2, 2
-    syscall
-    lb $t0, buffer
-    beq $t0, $t1, calcular_vf
-    beq $t0, $t2, ignorar_vf
-    li $v0, 5
-    syscall
-    sw $v0, Vf
-
-    # Leer a
-    la $a0, promptA
-    li $v0, 4
-    syscall
-    li $v0, 8
-    la $a1, buffer
-    li $a2, 2
-    syscall
-    lb $t0, buffer
-    beq $t0, $t1, calcular_a
-    beq $t0, $t2, ignorar_a
-    li $v0, 5
-    syscall
-    sw $v0, a
-
-    # Leer d
-    la $a0, promptD
-    li $v0, 4
-    syscall
-    li $v0, 8
-    la $a1, buffer
-    li $a2, 2
-    syscall
-    lb $t0, buffer
-    beq $t0, $t1, calcular_d
-    beq $t0, $t2, ignorar_d
-    li $v0, 5
-    syscall
-    sw $v0, d
-
-    # Leer t
-    la $a0, promptT
-    li $v0, 4
-    syscall
-    li $v0, 8
-    la $a1, buffer
-    li $a2, 2
-    syscall
-    lb $t0, buffer
-    beq $t0, $t1, calcular_t
-    beq $t0, $t2, ignorar_t
-    li $v0, 5
-    syscall
-    sw $v0, t
-    j realizar_calculo
-
-# Manejar 'n' para ignorar variables
-ignorar_vi:
-    li $t0, 0
-    sw $t0, flagVi
-    j main
-
-ignorar_vf:
-    li $t0, 0
-    sw $t0, flagVf
-    j main
-
-ignorar_a:
-    li $t0, 0
-    sw $t0, flagA
-    j main
-
-ignorar_d:
-    li $t0, 0
-    sw $t0, flagD
-    j main
-
-ignorar_t:
-    li $t0, 0
-    sw $t0, flagT
-    j main
-
-# Realizar cálculo basado en los valores ingresados
-realizar_calculo:
+macro_calcular variable:
     lw $t0, flagVi
     lw $t1, flagVf
     lw $t2, flagA
     lw $t3, flagD
     lw $t4, flagT
+    
+    li $t5, 4
+    add $t6, $t0, $t1
+    add $t6, $t6, $t2
+    add $t6, $t6, $t3
+    add $t6, $t6, $t4
+    li $t7, 4
+    sub $t6, $t6, $t7
+    beqz $t6, error_msg
 
-    # Verificar si solo una variable tiene 'x'
-    add $t5, $t0, $t1
-    add $t5, $t5, $t2
-    add $t5, $t5, $t3
-    add $t5, $t5, $t4
-    li $t6, 4
-    bne $t5, $t6, error_msg   # Si no hay exactamente una 'x', error
+    bnez $t0, calcular_vi
+    bnez $t1, calcular_vf
+    bnez $t2, calcular_a
+    bnez $t3, calcular_d
+    bnez $t4, calcular_t
 
-    # Calcular la variable desconocida
-    bne $t0, 1, calcular_vi
-    bne $t1, 1, calcular_vf
-    bne $t2, 1, calcular_a
-    bne $t3, 1, calcular_d
-    bne $t4, 1, calcular_t
-
-error_msg:
+manejar_error:
     la $a0, error
     li $v0, 4
     syscall
@@ -162,8 +77,8 @@ calcular_vi:
     lw $t1, Vf
     lw $t2, a
     lw $t3, t
-    mul $t2, $t2, $t3        # a * t
-    sub $t0, $t1, $t2         # Vi = Vf - a * t
+    mul $t2, $t2, $t3
+    sub $t0, $t1, $t2
     la $a0, msgVi
     li $v0, 4
     syscall
@@ -177,8 +92,8 @@ calcular_vf:
     lw $t1, Vi
     lw $t2, a
     lw $t3, t
-    mul $t2, $t2, $t3        # a * t
-    add $t0, $t1, $t2        # Vf = Vi + a * t
+    mul $t2, $t2, $t3
+    add $t0, $t1, $t2
     la $a0, msgVf
     li $v0, 4
     syscall
@@ -191,9 +106,9 @@ calcular_a:
     # a = (Vf - Vi) / t
     lw $t1, Vf
     lw $t2, Vi
-    sub $t1, $t1, $t2        # Vf - Vi
+    sub $t1, $t1, $t2
     lw $t3, t
-    div $t1, $t3             # (Vf - Vi) / t
+    div $t1, $t3
     mflo $t0
     la $a0, msgA
     li $v0, 4
@@ -207,12 +122,11 @@ calcular_d:
     # d = Vi * t + (1/2) * a * t^2
     lw $t1, Vi
     lw $t2, t
-    mul $t1, $t1, $t2        # Vi * t
+    mul $t1, $t1, $t2
     lw $t3, a
-    mul $t3, $t3, $t2        # a * t
-    mul $t3, $t3, $t2        # a * t^2
-    srl $t3, $t3, 1          # (1/2) * a * t^2
-    add $t0, $t1, $t3        # d = Vi * t + (1/2) * a * t^2
+    mul $t3, $t3, $t2
+    srl $t3, $t3, 1
+    add $t0, $t1, $t3
     la $a0, msgD
     li $v0, 4
     syscall
@@ -225,9 +139,9 @@ calcular_t:
     # t = (Vf - Vi) / a
     lw $t1, Vf
     lw $t2, Vi
-    sub $t1, $t1, $t2        # Vf - Vi
+    sub $t1, $t1, $t2
     lw $t3, a
-    div $t1, $t3             # (Vf - Vi) / a
+    div $t1, $t3
     mflo $t0
     la $a0, msgT
     li $v0, 4
@@ -236,6 +150,17 @@ calcular_t:
     li $v0, 1
     syscall
     j end
+
+main:
+    macro_leer_variable promptVi, Vi
+    macro_leer_variable promptVf, Vf
+    macro_leer_variable promptA, a
+    macro_leer_variable promptD, d
+    macro_leer_variable promptT, t
+    j realizar_calculo
+
+realizar_calculo:
+    jal macro_calcular
 
 end:
     li $v0, 10
