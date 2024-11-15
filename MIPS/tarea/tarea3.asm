@@ -219,3 +219,24 @@ calcular_d:
     move $a0, $t0
     li $v0, 1
     syscall
+    j end
+
+calcular_t:
+    # t = (Vf - Vi) / a
+    lw $t1, Vf
+    lw $t2, Vi
+    sub $t1, $t1, $t2        # Vf - Vi
+    lw $t3, a
+    div $t1, $t3             # (Vf - Vi) / a
+    mflo $t0
+    la $a0, msgT
+    li $v0, 4
+    syscall
+    move $a0, $t0
+    li $v0, 1
+    syscall
+    j end
+
+end:
+    li $v0, 10
+    syscall
