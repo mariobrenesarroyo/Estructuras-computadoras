@@ -66,21 +66,31 @@ main:
 
 # Subrutina para procesar cada entrada
 process_input:
-    # Verificar si el carácter es un dígito numérico (ASCII '0' a '9')
+    # Verificar si el carácter es un dígito numérico (ASCII '0' a '9') o una letra 'n' o 'x'
     li $t1, 48                 # ASCII de '0' es 48
     li $t2, 57                 # ASCII de '9' es 57
+    li $t3, 120                # ASCII de 'x' es 120
+    li $t4, 110                # ASCII de 'n' es 110
     blt $t0, $t1, error        # Si el carácter es menor que '0', es un error
-    bgt $t0, $t2, error        # Si el carácter es mayor que '9', es un error
+    bgt $t0, $t2, not_number   # Si el carácter es mayor que '9', no es un número
 
     # Convertir el carácter ASCII a un valor numérico
     sub $t0, $t0, $t1          # Restar 48 para obtener el valor numérico
-
-    # Verificar si el número es positivo, negativo o cero
-    li $t3, 0                  # Cargar 0 en $t3 (para comparación)
-    bgt $t0, $t3, pos_num      # Si el número es mayor que 0
-    blt $t0, $t3, neg_num      # Si el número es menor que 0
+    bgt $t0, $zero, pos_num    # Si es mayor que 0, es positivo
+    blt $t0, $zero, neg_num    # Si es menor que 0, es negativo
     li $v0, 4                  # Si el número es 0
     la $a0, zero_msg
+    syscall
+    j end_process
+
+not_number:
+    # Verificar si es una letra 'x' o 'n'
+    beq $t0, $t3, pos_num      # Si es 'x', es positivo
+    beq $t0, $t4, neg_num      # Si es 'n', es negativo
+
+    # Si no es ni número ni 'x' ni 'n', es un error
+    li $v0, 4                  # Imprimir mensaje de error
+    la $a0, error_msg
     syscall
     j end_process
 
