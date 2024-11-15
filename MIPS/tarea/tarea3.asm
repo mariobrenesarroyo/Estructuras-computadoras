@@ -123,11 +123,11 @@ error_dato_invalido:
 verificar_x:
     # Contar cuántas variables están marcadas para cálculo
     li $t7, 0
-    addi $t7, $t7, $t1
-    addi $t7, $t7, $t2
-    addi $t7, $t7, $t3
-    addi $t7, $t7, $t4
-    addi $t7, $t7, $t5
+    add $t7, $t7, $t1  # Suma el valor de $t1 al acumulador $t7
+    add $t7, $t7, $t2  # Suma el valor de $t2 al acumulador $t7
+    add $t7, $t7, $t3  # Suma el valor de $t3 al acumulador $t7
+    add $t7, $t7, $t4  # Suma el valor de $t4 al acumulador $t7
+    add $t7, $t7, $t5  # Suma el valor de $t5 al acumulador $t7
 
     # Si no hay ninguna variable con 'x', mostrar mensaje y calcular aceleración
     beq $t7, 0, calcular_a_defecto
