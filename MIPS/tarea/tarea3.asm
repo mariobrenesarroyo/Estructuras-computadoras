@@ -1,170 +1,162 @@
 .data
-promptVi: .asciiz "Ingrese velocidad inicial (Vi): "
-promptVf: .asciiz "Ingrese velocidad final (Vf): "
-promptA: .asciiz "Ingrese aceleración (a): "
-promptD: .asciiz "Ingrese distancia (d): "
-promptT: .asciiz "Ingrese tiempo (t): "
-msgError: .asciiz "Error: No se puede calcular, valor inválido.\n"
-msgCalculoA: .asciiz "Calculando aceleración...\n"
-msgCalculoVi: .asciiz "Calculando velocidad inicial...\n"
-msgCalculoVf: .asciiz "Calculando velocidad final...\n"
-msgCalculoD: .asciiz "Calculando distancia...\n"
-msgCalculoT: .asciiz "Calculando tiempo...\n"
-buffer: .space 2  # Espacio para un carácter
-
-# Definir cadenas "x" y "n"
-x: .asciiz "x"
-n: .asciiz "n"
+prompt_vi:   .asciiz "Introduce Vi (velocidad inicial): "
+prompt_vf:   .asciiz "Introduce Vf (velocidad final): "
+prompt_a:    .asciiz "Introduce A (aceleracion): "
+prompt_d:    .asciiz "Introduce D (distancia): "
+prompt_t:    .asciiz "Introduce T (tiempo): "
+pos_msg:     .asciiz " es positivo\n"
+neg_msg:     .asciiz " es negativo\n"
+zero_msg:    .asciiz " es cero\n"
 
 .text
 .globl main
+
 main:
-    # Pedir los valores
-    j pedir_Vi
-    j pedir_Vf
-    j pedir_A
-    j pedir_D
-    j pedir_t
-
-    # Verificar qué valor es 'x' para calcular
-    jal verificar_calculo
-
-    # Salir del programa
-    li $v0, 10
+    # Pedir Vi
+    li $v0, 4                  # Imprimir cadena
+    la $a0, prompt_vi
     syscall
 
-# Función para pedir Vi
-pedir_Vi:
-    la $a0, promptVi
-    li $v0, 4      # Mostrar mensaje
+    li $v0, 5                  # Leer entero
     syscall
-    jal leer_valor
-    move $t0, $v0  # Guardar Vi en $t0
-    jr $ra
+    move $t0, $v0              # Guardar Vi en $t0
 
-# Función para pedir Vf
-pedir_Vf:
-    la $a0, promptVf
-    li $v0, 4      # Mostrar mensaje
-    syscall
-    jal leer_valor
-    move $t1, $v0  # Guardar Vf en $t1
-    jr $ra
-
-# Función para pedir A
-pedir_A:
-    la $a0, promptA
-    li $v0, 4      # Mostrar mensaje
-    syscall
-    jal leer_valor
-    move $t2, $v0  # Guardar A en $t2
-    jr $ra
-
-# Función para pedir D
-pedir_D:
-    la $a0, promptD
-    li $v0, 4      # Mostrar mensaje
-    syscall
-    jal leer_valor
-    move $t3, $v0  # Guardar D en $t3
-    jr $ra
-
-# Función para pedir T
-pedir_t:
-    la $a0, promptT
-    li $v0, 4      # Mostrar mensaje
-    syscall
-    jal leer_valor
-    move $t4, $v0  # Guardar T en $t4
-    jr $ra
-
-# Función para leer un valor
-leer_valor:
-    li $v0, 8      # Leer cadena
-    la $a1, buffer
-    li $a2, 2
-    syscall
-    lb $t5, buffer # Leer primer carácter
-
-    # Comprobar si es 'n' o 'x'
-    la $t6, n       # Cargar 'n' en $t6
-    lb $t7, ($t6)   # Leer 'n' (valor ASCII)
-    beq $t5, $t7, valor_invalido
-
-    la $t6, x       # Cargar 'x' en $t6
-    lb $t7, ($t6)   # Leer 'x' (valor ASCII)
-    beq $t5, $t7, valor_invalido
-
-    # Si no es 'x' ni 'n', leer número
-    li $v0, 5      # Leer entero
-    syscall
-    move $v0, $t6  # Guardar el número ingresado en $v0
-    jr $ra
-
-valor_invalido:
-    li $v0, 4      # Mostrar error
-    la $a0, msgError
-    syscall
-    li $v0, 10     # Salir del programa
+    # Pedir Vf
+    li $v0, 4                  # Imprimir cadena
+    la $a0, prompt_vf
     syscall
 
-# Función para verificar qué cálculo hacer
-verificar_calculo:
-    # Comprobamos si cada valor es 'x' para determinar qué calcular
+    li $v0, 5                  # Leer entero
+    syscall
+    move $t1, $v0              # Guardar Vf en $t1
+
+    # Pedir A
+    li $v0, 4                  # Imprimir cadena
+    la $a0, prompt_a
+    syscall
+
+    li $v0, 5                  # Leer entero
+    syscall
+    move $t2, $v0              # Guardar A en $t2
+
+    # Pedir D
+    li $v0, 4                  # Imprimir cadena
+    la $a0, prompt_d
+    syscall
+
+    li $v0, 5                  # Leer entero
+    syscall
+    move $t3, $v0              # Guardar D en $t3
+
+    # Pedir T
+    li $v0, 4                  # Imprimir cadena
+    la $a0, prompt_t
+    syscall
+
+    li $v0, 5                  # Leer entero
+    syscall
+    move $t4, $v0              # Guardar T en $t4
 
     # Verificar Vi
-    beq $t0, 'x', calcular_Vi
+    li $t5, 0                  # Cargar 0 en $t5 (para comparación)
+    bgt $t0, $t5, vi_pos       # Si Vi > 0, va a vi_pos
+    blt $t0, $t5, vi_neg       # Si Vi < 0, va a vi_neg
+    li $v0, 4                  # Si Vi == 0
+    la $a0, zero_msg
+    syscall
+    j next_vi
 
+vi_pos:
+    li $v0, 4
+    la $a0, pos_msg
+    syscall
+    j next_vi
+
+vi_neg:
+    li $v0, 4
+    la $a0, neg_msg
+    syscall
+
+next_vi:
     # Verificar Vf
-    beq $t1, 'x', calcular_Vf
+    bgt $t1, $t5, vf_pos
+    blt $t1, $t5, vf_neg
+    li $v0, 4
+    la $a0, zero_msg
+    syscall
+    j next_vf
 
+vf_pos:
+    li $v0, 4
+    la $a0, pos_msg
+    syscall
+    j next_vf
+
+vf_neg:
+    li $v0, 4
+    la $a0, neg_msg
+    syscall
+
+next_vf:
     # Verificar A
-    beq $t2, 'x', calcular_A
+    bgt $t2, $t5, a_pos
+    blt $t2, $t5, a_neg
+    li $v0, 4
+    la $a0, zero_msg
+    syscall
+    j next_a
 
+a_pos:
+    li $v0, 4
+    la $a0, pos_msg
+    syscall
+    j next_a
+
+a_neg:
+    li $v0, 4
+    la $a0, neg_msg
+    syscall
+
+next_a:
     # Verificar D
-    beq $t3, 'x', calcular_D
+    bgt $t3, $t5, d_pos
+    blt $t3, $t5, d_neg
+    li $v0, 4
+    la $a0, zero_msg
+    syscall
+    j next_d
 
+d_pos:
+    li $v0, 4
+    la $a0, pos_msg
+    syscall
+    j next_d
+
+d_neg:
+    li $v0, 4
+    la $a0, neg_msg
+    syscall
+
+next_d:
     # Verificar T
-    beq $t4, 'x', calcular_T
-
-    jr $ra
-
-# Función para calcular Vi
-calcular_Vi:
-    la $a0, msgCalculoVi
+    bgt $t4, $t5, t_pos
+    blt $t4, $t5, t_neg
     li $v0, 4
+    la $a0, zero_msg
     syscall
-    # Lógica para calcular Vi
-    jr $ra
+    j end_program
 
-# Función para calcular Vf
-calcular_Vf:
-    la $a0, msgCalculoVf
+t_pos:
     li $v0, 4
+    la $a0, pos_msg
     syscall
-    # Lógica para calcular Vf
-    jr $ra
+    j end_program
 
-# Función para calcular A
-calcular_A:
-    la $a0, msgCalculoA
+t_neg:
     li $v0, 4
+    la $a0, neg_msg
     syscall
-    # Lógica para calcular A
-    jr $ra
 
-# Función para calcular D
-calcular_D:
-    la $a0, msgCalculoD
-    li $v0, 4
+end_program:
+    li $v0, 10         # Salir del programa
     syscall
-    # Lógica para calcular D
-    jr $ra
-
-# Función para calcular T
-calcular_T:
-    la $a0, msgCalculoT
-    li $v0, 4
-    syscall
-    # Lógica para calcular T
-    jr $ra
