@@ -18,51 +18,73 @@ main:
     syscall
 
     # Leer entrada del usuario para Vi y Vf
+    li $t0, 0           # Variable para almacenar el carácter leído
+loop_vi_vf:
     li $v0, 8
     la $a0, prompt3
     syscall
     li $v0, 12
     syscall
-    move $s0, $v0      # Guardar Velocidad inicial en $s0
+    move $t0, $v0      # Guardar el carácter leído en $t0
 
+    # Verificar si es 'x' o 'n'
+    bne $t0, 'x', loop_vf
+    bne $t0, 'n', loop_a
+    j loop_vi_vf
+
+loop_vf:
     li $v0, 8
     la $a0, prompt4
     syscall
     li $v0, 12
     syscall
-    move $s1, $v0      # Guardar Velocidad final en $s1
+    move $t0, $v0      # Guardar el carácter leído en $t0
 
-    # Leer entrada del usuario para a y d
+    # Verificar si es 'x' o 'n'
+    bne $t0, 'x', loop_a
+    bne $t0, 'n', loop_d
+    j loop_vf
+
+loop_a:
     li $v0, 8
     la $a0, prompt5
     syscall
     li $v0, 12
     syscall
-    move $s2, $v0      # Guardar Aceleración en $s2
+    move $t0, $v0      # Guardar el carácter leído en $t0
 
+    # Verificar si es 'x' o 'n'
+    bne $t0, 'x', loop_d
+    bne $t0, 'n', loop_t
+    j loop_a
+
+loop_d:
     li $v0, 8
     la $a0, prompt6
     syscall
     li $v0, 12
     syscall
-    move $s3, $v0      # Guardar Distancia en $s3
+    move $t0, $v0      # Guardar el carácter leído en $t0
 
-    # Leer entrada del usuario para t
+    # Verificar si es 'x' o 'n'
+    bne $t0, 'x', loop_t
+    bne $t0, 'n', end_loop
+    j loop_d
+
+loop_t:
     li $v0, 8
     la $a0, prompt7
     syscall
     li $v0, 12
     syscall
-    move $s4, $v0      # Guardar Tiempo en $s4
+    move $t0, $v0      # Guardar el carácter leído en $t0
 
-    # Leer cual se calculará y cual se excluirá
-    li $v0, 8
-    la $a0, prompt2
-    syscall
-    li $v0, 12
-    syscall
-    move $s5, $v0      # Guardar entrada del usuario en $s5
+    # Verificar si es 'x' o 'n'
+    bne $t0, 'x', end_loop
+    bne $t0, 'n', end_loop
+    j loop_t
 
+end_loop:
     # Calcular variable omitida (asumiendo que se calcula Vf)
     li $t0, 34         # Vf = 34 m/s
     move $s6, $t0      # Guardar Vf en $s6
