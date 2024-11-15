@@ -50,7 +50,7 @@ main:
 
     beq $t1, 120, skipVi  # Si la entrada es "x" (ASCII 120), saltar la lectura de la Velocidad inicial
     beq $t1, 110, skipVi  # Si la entrada es "n" (ASCII 110), saltar la lectura de la Velocidad inicial
-    
+
     # Leer el valor de la Velocidad Inicial (si no es "x" ni "n")
     li $v0, 6  # Syscall para leer un número de punto flotante
     syscall
@@ -71,7 +71,7 @@ skipVi:
 
     beq $t1, 120, skipVf  # Si la entrada es "x" (ASCII 120), saltar la lectura de la Velocidad final
     beq $t1, 110, skipVf  # Si la entrada es "n" (ASCII 110), saltar la lectura de la Velocidad final
-    
+
     # Leer el valor de la Velocidad Final (si no es "x" ni "n")
     li $v0, 6  # Syscall para leer un número de punto flotante
     syscall
@@ -92,7 +92,7 @@ skipVf:
 
     beq $t1, 120, skipA  # Si la entrada es "x" (ASCII 120), saltar la lectura de la Aceleración
     beq $t1, 110, skipA  # Si la entrada es "n" (ASCII 110), saltar la lectura de la Aceleración
-    
+
     # Leer el valor de la Aceleración (si no es "x" ni "n")
     li $v0, 6  # Syscall para leer un número de punto flotante
     syscall
@@ -113,7 +113,7 @@ skipA:
 
     beq $t1, 120, skipD  # Si la entrada es "x" (ASCII 120), saltar la lectura de la Distancia
     beq $t1, 110, skipD  # Si la entrada es "n" (ASCII 110), saltar la lectura de la Distancia
-    
+
     # Leer el valor de la Distancia (si no es "x" ni "n")
     li $v0, 6  # Syscall para leer un número de punto flotante
     syscall
@@ -134,19 +134,15 @@ skipD:
 
     beq $t1, 120, skipT  # Si la entrada es "x" (ASCII 120), saltar la lectura del Tiempo
     beq $t1, 110, skipT  # Si la entrada es "n" (ASCII 110), saltar la lectura del Tiempo
-    
+
     # Leer el valor de Tiempo (si no es "x" ni "n")
     li $v0, 6  # Syscall para leer un número de punto flotante
     syscall
     s.s $f0, t  # Guardar el valor de t
 
 skipT:
-    # Ahora calculamos la variable que falta según las opciones "x" y "n"
-    
-    # Cálculos para MRUA:
-    # Vi, Vf, a, d, t
-    # Asegúrate de excluir la variable marcada con "n" y calcular la variable marcada con "x".
-    
+    # Aquí calcularemos el valor faltante según las opciones "x" y "n"
+
     # Finalizar el programa
     li $v0, 10
     syscall
