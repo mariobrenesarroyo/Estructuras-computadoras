@@ -7,6 +7,8 @@ prompt_t:    .asciiz "Introduce T (tiempo): "
 pos_msg:     .asciiz " es positivo\n"
 neg_msg:     .asciiz " es negativo\n"
 zero_msg:    .asciiz " es cero\n"
+x:           .asciiz "x"
+n:           .asciiz "n"
 
 .text
 .globl main
@@ -70,11 +72,17 @@ vi_pos:
     li $v0, 4
     la $a0, pos_msg
     syscall
+    li $v0, 4                  # Imprimir "x"
+    la $a0, x
+    syscall
     j next_vi
 
 vi_neg:
     li $v0, 4
     la $a0, neg_msg
+    syscall
+    li $v0, 4                  # Imprimir "n"
+    la $a0, n
     syscall
 
 next_vi:
@@ -90,11 +98,17 @@ vf_pos:
     li $v0, 4
     la $a0, pos_msg
     syscall
+    li $v0, 4                  # Imprimir "x"
+    la $a0, x
+    syscall
     j next_vf
 
 vf_neg:
     li $v0, 4
     la $a0, neg_msg
+    syscall
+    li $v0, 4                  # Imprimir "n"
+    la $a0, n
     syscall
 
 next_vf:
@@ -110,11 +124,17 @@ a_pos:
     li $v0, 4
     la $a0, pos_msg
     syscall
+    li $v0, 4                  # Imprimir "x"
+    la $a0, x
+    syscall
     j next_a
 
 a_neg:
     li $v0, 4
     la $a0, neg_msg
+    syscall
+    li $v0, 4                  # Imprimir "n"
+    la $a0, n
     syscall
 
 next_a:
@@ -130,11 +150,17 @@ d_pos:
     li $v0, 4
     la $a0, pos_msg
     syscall
+    li $v0, 4                  # Imprimir "x"
+    la $a0, x
+    syscall
     j next_d
 
 d_neg:
     li $v0, 4
     la $a0, neg_msg
+    syscall
+    li $v0, 4                  # Imprimir "n"
+    la $a0, n
     syscall
 
 next_d:
@@ -150,11 +176,17 @@ t_pos:
     li $v0, 4
     la $a0, pos_msg
     syscall
+    li $v0, 4                  # Imprimir "x"
+    la $a0, x
+    syscall
     j end_program
 
 t_neg:
     li $v0, 4
     la $a0, neg_msg
+    syscall
+    li $v0, 4                  # Imprimir "n"
+    la $a0, n
     syscall
 
 end_program:
