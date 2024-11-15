@@ -1,175 +1,249 @@
 .data
-prompts: .asciiz "Ingrese 'x' para calcular, 'n' para excluir o el valor numérico:\n"
-promptVi: .asciiz "Velocidad inicial (Vi): "
-promptVf: .asciiz "Velocidad final (Vf): "
-promptA: .asciiz "Aceleración (a): "
-promptD: .asciiz "Distancia (d): "
-promptT: .asciiz "Tiempo (t): "
-msgCalculoA: .asciiz "Calculando aceleración como predeterminado.\n"
-error: .asciiz "Error: Se ingresaron datos erroneos.\n"
-x: .asciiz "x"
-n: .asciiz "n"
-buffer: .space 2
+mensaje_solicitud: .asciiz "¡Hola!\nPor favor ingrese una frase o palabra para analizarla: "
+vocales: .asciiz "aeiouAEIOU"
+consonantes: .asciiz "bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ"
+buffer: .space 100
+MAYUSCULAS: .asciiz "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
+minusculas: .asciiz "abcdefghijklmnñopqrstuvwxyz"
+signos: .asciiz "!¡?¿.:;"
+mensaje_resultados: .asciiz "Resultados:\n"
+mensaje_contador_palabras: .asciiz "Cantidad de palabras: "
+mensaje_contador_caracteres: .asciiz "Cantidad de caracteres (letras): "
+mensaje_contador_vocales: .asciiz "Cantidad de vocales: "
+mensaje_contador_consonantes: .asciiz "Cantidad de consonantes: "
+mensaje_contador_mayusculas: .asciiz "Cantidad de MAYUSCULAS: "
+mensaje_contador_minusculas: .asciiz "Cantidad de minusculas: "
+mensaje_contador_signos: .asciiz "Cantidad de signos de puntuación: "
+
+contador_palabras: .word 0
+contador_caracteres: .word 0
+contador_vocales: .word 0
+contador_consonantes: .word 0
+contador_mayusculas: .word 0
+contador_minusculas: .word 0
+contador_signos: .word 0
 
 .text
 main:
-    la $a0, prompts
-    li $v0, 4
+    # Imprimir el mensaje de solicitud
+    addi $v0, $zero, 4
+    la $a0, mensaje_solicitud
     syscall
 
-    # Leer entradas para Vi, Vf, a, d y t
-    jal leer_valor_Vi
-    jal leer_valor_Vf
-    jal leer_valor_a
-    jal leer_valor_d
-    jal leer_valor_t
-
-    # Verificar cuál variable tiene 'x'
-    jal verificar_x
-
-    # Salir del programa
-    li $v0, 10
+    # Leer la entrada del usuario
+    addi $v0, $zero, 8
+    la $a0, buffer
+    addi $a1, $zero, 100
     syscall
 
-# Función para leer Vi
-leer_valor_Vi:
-    la $a0, promptVi
-    jal leer_valor
-    move $t1, $v0  # Guardar Vi en $t1
-    jr $ra
+    # Inicializar registros
+    la $t0, buffer              # Dirección de 'buffer'
+    la $t1, vocales             # Dirección de 'vocales'
+    la $s0, consonantes         # Dirección de 'consonantes'
+    la $s1, MAYUSCULAS          # Dirección de 'MAYUSCULAS'
+    la $s2, minusculas          # Dirección de 'minusculas'
+    la $s5, signos              # Dirección de 'signos'
+    addi $t2, $zero, 0          # Contador de palabras
+    addi $t4, $zero, 0          # Contador de vocales
+    addi $t5, $zero, 0          # Contador de consonantes
+    addi $t6, $zero, 0          # Indicador de palabra (0 = fuera de palabra, 1 = en palabra)
+    addi $s3, $zero, 0          # Contador de mayúsculas
+    addi $s4, $zero, 0          # Contador de minúsculas
+    addi $s6, $zero, 0          # Contador de signos
 
-# Función para leer Vf
-leer_valor_Vf:
-    la $a0, promptVf
-    jal leer_valor
-    move $t2, $v0  # Guardar Vf en $t2
-    jr $ra
+bucle_conteo:
+    lb $t7, 0($t0)              # Leer el siguiente carácter
+    beq $t7, $zero, fin_bucle   # Si es el fin de la cadena, salir del bucle
 
-# Función para leer a
-leer_valor_a:
-    la $a0, promptA
-    jal leer_valor
-    move $t3, $v0  # Guardar a en $t3
-    jr $ra
+    # Comprobar si el carácter es un espacio
+    beq $t7, 32, espacio_detectado
 
-# Función para leer d
-leer_valor_d:
-    la $a0, promptD
-    jal leer_valor
-    move $t4, $v0  # Guardar d en $t4
-    jr $ra
+    # Contar caracteres (solo letras)
+    addi $t3, $t3, 1            # Incrementar contador de caracteres
 
-# Función para leer t
-leer_valor_t:
-    la $a0, promptT
-    jal leer_valor
-    move $t5, $v0  # Guardar t en $t5
-    jr $ra
+    # Contar vocales
+    la $t1, vocales             # Dirección de 'vocales'
+verificar_vocal:
+    lb $t8, 0($t1)              # Cargar vocal
+    beq $t8, $zero, verificar_consonante
+    beq $t7, $t8, detectar_vocal
+    addi $t1, $t1, 1
+    j verificar_vocal
 
-# Leer valor general (x, n o número positivo)
-leer_valor:
-    li $v0, 4
+detectar_vocal:
+    addi $t4, $t4, 1            # Incrementar contador de vocales
+    j verificar_mayuscula       # Saltar a verificación de mayúsculas/minúsculas
+
+verificar_consonante:
+    la $s0, consonantes         # Dirección de 'consonantes'
+verificar_consonante_2:
+    lb $t8, 0($s0)              # Cargar consonante
+    beq $t8, $zero, verificar_signo
+    beq $t7, $t8, detectar_consonante
+    addi $s0, $s0, 1
+    j verificar_consonante_2
+
+detectar_consonante:
+    addi $t5, $t5, 1            # Incrementar contador de consonantes
+    j verificar_mayuscula
+
+verificar_mayuscula:
+    la $s1, MAYUSCULAS          # Dirección de 'MAYUSCULAS'
+verificar_mayuscula_2:
+    lb $t8, 0($s1)              # Cargar mayúscula
+    beq $t8, $zero, verificar_minuscula
+    beq $t7, $t8, detectar_mayuscula
+    addi $s1, $s1, 1
+    j verificar_mayuscula_2
+
+detectar_mayuscula:
+    addi $s3, $s3, 1            # Incrementar contador de mayúsculas
+    j palabra_detectada
+
+verificar_minuscula:
+    la $s2, minusculas          # Dirección de 'minusculas'
+verificar_minuscula_2:
+    lb $t8, 0($s2)              # Cargar minúscula
+    beq $t8, $zero, verificar_signo
+    beq $t7, $t8, detectar_minuscula
+    addi $s2, $s2, 1
+    j verificar_minuscula_2
+
+detectar_minuscula:
+    addi $s4, $s4, 1            # Incrementar contador de minúsculas
+    j palabra_detectada
+
+verificar_signo:
+    la $s5, signos              # Dirección de 'signos'
+verificar_signo_2:
+    lb $t8, 0($s5)              # Cargar signo
+    beq $t8, $zero, palabra_detectada
+    beq $t7, $t8, detectar_signo
+    addi $s5, $s5, 1
+    j verificar_signo_2
+
+detectar_signo:
+    addi $s6, $s6, 1            # Incrementar contador de signos
+
+palabra_detectada:
+    beq $t6, $zero, nueva_palabra
+    j siguiente_caracter
+
+nueva_palabra:
+    addi $t2, $t2, 1            # Incrementar contador de palabras
+    addi $t6, $zero, 1          # Establecer que estamos en una palabra
+    j siguiente_caracter
+
+espacio_detectado:
+    addi $t6, $zero, 0          # Establecer que estamos fuera de una palabra
+    j siguiente_caracter
+
+siguiente_caracter:
+    addi $t0, $t0, 1            # Avanzar al siguiente carácter
+    j bucle_conteo
+
+fin_bucle:
+    # Guardar los resultados en memoria
+    sw $t2, contador_palabras
+    sw $t4, contador_vocales
+    sw $t5, contador_consonantes
+    sw $s3, contador_mayusculas
+    sw $s4, contador_minusculas
+    sw $s6, contador_signos
+
+    # Calcular el total de caracteres como suma de vocales y consonantes
+    add $t3, $t4, $t5            # Total caracteres = vocales + consonantes
+    sw $t3, contador_caracteres
+
+    # Imprimir resultados
+    addi $v0, $zero, 4
+    la $a0, mensaje_resultados
     syscall
-    li $v0, 8
-    la $a1, buffer
-    li $a2, 2
+
+    # Contador de palabras
+    addi $v0, $zero, 4
+    la $a0, mensaje_contador_palabras
     syscall
-    lb $t6, buffer      # Leer primer caracter ingresado
-
-    # Comparar si es 'x' o 'n'
-    la $t7, x           # Cargar "x" en $t7
-    la $t8, n           # Cargar "n" en $t8
-    lb $t9, ($t7)       # Obtener valor ASCII de "x"
-    lb $t0, ($t8)       # Obtener valor ASCII de "n"
-
-    # Si es 'x', asignar marcador 2 para cálculo
-    beq $t6, $t9, marcar_para_calculo
-
-    # Si es 'n', asignar marcador 0 para ignorar
-    beq $t6, $t0, marcar_para_ignorar
-
-    # Si no es ni 'x' ni 'n', verificar si es un valor numérico
-    li $v0, 5
+    addi $v0, $zero, 1
+    lw $a0, contador_palabras
     syscall
-    move $t6, $v0  # Guardar el valor ingresado en $t6
-
-    # Verificar si el valor es negativo
-    bltz $t6, error_dato_invalido  # Si $t6 < 0, error
-
-    # Guardar el valor como numérico y marcarlo como tal
-    li $t7, 1       # Marcar como valor numérico
-    move $v0, $t6   # Devolver el valor ingresado
-    jr $ra
-
-marcar_para_calculo:
-    li $v0, 0       # Valor temporal
-    li $t7, 2       # Marcar para cálculo
-    jr $ra
-
-marcar_para_ignorar:
-    li $v0, 0       # Valor temporal
-    li $t7, 0       # Marcar para ignorar
-    jr $ra
-
-# Mensaje de error si el dato ingresado es inválido
-error_dato_invalido:
-    la $a0, error
-    li $v0, 4
-    syscall
-    li $v0, 10      # Salir del programa
+    # Salto de línea
+    addi $v0, $zero, 11
+    li $a0, 10
     syscall
 
-# Verificar cuál variable tiene 'x' y es la única para cálculo
-verificar_x:
-    # Contar cuántas variables están marcadas para cálculo
-    li $t7, 0
-    addi $t7, $t7, $t1
-    addi $t7, $t7, $t2
-    addi $t7, $t7, $t3
-    addi $t7, $t7, $t4
-    addi $t7, $t7, $t5
-
-    # Si no hay ninguna variable con 'x', mostrar mensaje y calcular aceleración
-    beq $t7, 0, calcular_a_defecto
-
-    # Si solo hay una variable con 'x', hacer el cálculo de esa variable
-    li $t8, 2
-    beq $t1, $t8, calcular_vi
-    beq $t2, $t8, calcular_vf
-    beq $t3, $t8, calcular_a
-    beq $t4, $t8, calcular_d
-    beq $t5, $t8, calcular_t
-
-    # Si hay más de una 'x', mostrar mensaje de error
-    la $a0, error
-    li $v0, 4
+    # Imprimir contador de caracteres
+    addi $v0, $zero, 4
+    la $a0, mensaje_contador_caracteres
     syscall
-    jr $ra
-
-calcular_a_defecto:
-    la $a0, msgCalculoA
-    li $v0, 4
+    addi $v0, $zero, 1
+    lw $a0, contador_caracteres
     syscall
-    # Lógica para calcular aceleración como valor predeterminado
-    # Aquí iría el código para calcular 'a'
-    jr $ra
+    # Salto de línea
+    addi $v0, $zero, 11
+    li $a0, 10
+    syscall
 
-calcular_vi:
-    # Lógica para calcular Vi
-    jr $ra
+    # Contador de vocales
+    addi $v0, $zero, 4
+    la $a0, mensaje_contador_vocales
+    syscall
+    addi $v0, $zero, 1
+    lw $a0, contador_vocales
+    syscall
+    # Salto de línea
+    addi $v0, $zero, 11
+    li $a0, 10
+    syscall
 
-calcular_vf:
-    # Lógica para calcular Vf
-    jr $ra
+    # Contador de consonantes
+    addi $v0, $zero, 4
+    la $a0, mensaje_contador_consonantes
+    syscall
+    addi $v0, $zero, 1
+    lw $a0, contador_consonantes
+    syscall
+    # Salto de línea
+    addi $v0, $zero, 11
+    li $a0, 10
+    syscall
 
-calcular_a:
-    # Lógica para calcular A
-    jr $ra
+    # Contador de mayúsculas
+    addi $v0, $zero, 4
+    la $a0, mensaje_contador_mayusculas
+    syscall
+    addi $v0, $zero, 1
+    lw $a0, contador_mayusculas
+    syscall
+    # Salto de línea
+    addi $v0, $zero, 11
+    li $a0, 10
+    syscall
 
-calcular_d:
-    # Lógica para calcular D
-    jr $ra
+    # Contador de minúsculas
+    addi $v0, $zero, 4
+    la $a0, mensaje_contador_minusculas
+    syscall
+    addi $v0, $zero, 1
+    lw $a0, contador_minusculas
+    syscall
+    # Salto de línea
+    addi $v0, $zero, 11
+    li $a0, 10
+    syscall
 
-calcular_t:
-    # Lógica para calcular T
-    jr $ra
+    # Contador de signos de puntuación
+    addi $v0, $zero, 4
+    la $a0, mensaje_contador_signos
+    syscall
+    addi $v0, $zero, 1
+    lw $a0, contador_signos
+    syscall
+    # Salto de línea
+    addi $v0, $zero, 11
+    li $a0, 10
+    syscall
+
+    # Terminar programa
+    addi $v0, $zero, 10
+    syscall
