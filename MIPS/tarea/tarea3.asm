@@ -6,10 +6,10 @@ promptA: .asciiz "Aceleración (a): "
 promptD: .asciiz "Distancia (d): "
 promptT: .asciiz "Tiempo (t): "
 msgCalculoA: .asciiz "Calculando aceleración como predeterminado.\n"
-error: .asciiz "Error: Se ingresaron datos erroneos.\n"
+error: .asciiz "Error: Se ingresaron datos erróneos.\n"
 x: .asciiz "x"
 n: .asciiz "n"
-buffer: .space 2
+buffer: .space 2  # Espacio para un caracter
 
 .text
 main:
@@ -66,7 +66,7 @@ leer_valor_t:
     move $t5, $v0  # Guardar t en $t5
     jr $ra
 
-# Modificar la sección de leer_valor para asegurar la correcta ejecución después de ingresar 'x'
+# Leer valor general (x, n o número positivo)
 leer_valor:
     li $v0, 4
     syscall
@@ -88,7 +88,7 @@ leer_valor:
     # Si es 'n', asignar marcador 0 para ignorar
     beq $t6, $t0, marcar_para_ignorar
 
-    # Si no es ni 'x' ni 'n', verificar si es un valor numérico
+    # Si no es ni 'x' ni 'n', intentar leer valor numérico
     li $v0, 5
     syscall
     move $t6, $v0  # Guardar el valor ingresado en $t6
@@ -96,8 +96,7 @@ leer_valor:
     # Verificar si el valor es negativo
     bltz $t6, error_dato_invalido  # Si $t6 < 0, error
 
-    # Guardar el valor como numérico y marcarlo como tal
-    li $t7, 1       # Marcar como valor numérico
+    # Guardar el valor como numérico
     move $v0, $t6   # Devolver el valor ingresado
     jr $ra
 
@@ -110,7 +109,6 @@ marcar_para_ignorar:
     li $v0, 0       # Valor temporal
     li $t7, 0       # Marcar para ignorar
     jr $ra
-
 
 # Mensaje de error si el dato ingresado es inválido
 error_dato_invalido:
