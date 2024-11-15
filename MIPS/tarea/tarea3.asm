@@ -1,128 +1,123 @@
 .data
-    prompt1: .asciiz "¡Bienvenido a la calculadora MRUA!\nPor favor ingrese los datos siguientes:\n"
-    prompt2: .asciiz "\n(ingrese una \"x\" para el dato que desea calcular y una \"n\" para el dato excluido)\n"
-    prompt3: .asciiz "\nVelocidad inicial (m/s): "
-    prompt4: .asciiz "\nVelocidad final (m/s): "
-    prompt5: .asciiz "\nAceleración (m/s²): "
-    prompt6: .asciiz "\nDistancia (m): "
-    prompt7: .asciiz "\nTiempo (s): "
-    result1: .asciiz "\nResultados:\n"
+x: .asciiz "x"
+n: .asciiz "n"
+msg_v_inicial: .asciiz "Velocidad inicial (m/s): "
+msg_v_final: .asciiz "Velocidad final (m/s): "
+msg_aceleracion: .asciiz "Aceleracion (m/s^2): "
+msg_distancia: .asciiz "Distancia (m): "
+msg_tiempo: .asciiz "Tiempo (s): "
+msg_invalid: .asciiz "Valor no valido. Ingrese un numero flotante o un caracter ASCII.\n"
+msg_result: .asciiz "Resultados:\n"
 
 .text
 .globl main
 
 main:
-    # Imprimir mensaje de bienvenida
+    # Pedir velocidad inicial
     li $v0, 4
-    la $a0, prompt1
+    la $a0, msg_v_inicial
     syscall
-
-    # Leer entrada del usuario para Vi y Vf
-    li $t0, 0           # Variable para almacenar el carácter leído
-loop_vi_vf:
-    li $v0, 8
-    la $a0, prompt3
+    
+    # Leer entrada de velocidad inicial
+    li $v0, 5
     syscall
-    li $v0, 12
+    move $t0, $v0  # Guardar velocidad inicial en $t0
+    
+    # Pedir velocidad final
+    li $v0, 4
+    la $a0, msg_v_final
     syscall
-    move $t0, $v0      # Guardar el carácter leído en $t0
-
-    # Verificar si es 'x' o 'n'
-    bne $t0, 'x', loop_vf
-    bne $t0, 'n', loop_a
-    j loop_vi_vf
-
-loop_vf:
-    li $v0, 8
-    la $a0, prompt4
+    
+    # Leer entrada de velocidad final
+    li $v0, 5
     syscall
-    li $v0, 12
+    move $t1, $v0  # Guardar velocidad final en $t1
+    
+    # Pedir aceleración
+    li $v0, 4
+    la $a0, msg_aceleracion
     syscall
-    move $t0, $v0      # Guardar el carácter leído en $t0
-
-    # Verificar si es 'x' o 'n'
-    bne $t0, 'x', loop_a
-    bne $t0, 'n', loop_d
-    j loop_vf
-
-loop_a:
-    li $v0, 8
-    la $a0, prompt5
+    
+    # Leer entrada de aceleración
+    li $v0, 5
     syscall
-    li $v0, 12
+    move $t2, $v0  # Guardar aceleración en $t2
+    
+    # Pedir distancia
+    li $v0, 4
+    la $a0, msg_distancia
     syscall
-    move $t0, $v0      # Guardar el carácter leído en $t0
-
-    # Verificar si es 'x' o 'n'
-    bne $t0, 'x', loop_d
-    bne $t0, 'n', loop_t
-    j loop_a
-
-loop_d:
-    li $v0, 8
-    la $a0, prompt6
+    
+    # Leer entrada de distancia
+    li $v0, 5
     syscall
-    li $v0, 12
+    move $t3, $v0  # Guardar distancia en $t3
+    
+    # Pedir tiempo
+    li $v0, 4
+    la $a0, msg_tiempo
     syscall
-    move $t0, $v0      # Guardar el carácter leído en $t0
-
-    # Verificar si es 'x' o 'n'
-    bne $t0, 'x', loop_t
-    bne $t0, 'n', end_loop
-    j loop_d
-
-loop_t:
-    li $v0, 8
-    la $a0, prompt7
+    
+    # Leer entrada de tiempo
+    li $v0, 5
     syscall
-    li $v0, 12
-    syscall
-    move $t0, $v0      # Guardar el carácter leído en $t0
-
-    # Verificar si es 'x' o 'n'
-    bne $t0, 'x', end_loop
-    bne $t0, 'n', end_loop
-    j loop_t
-
-end_loop:
-    # Calcular variable omitida (asumiendo que se calcula Vf)
-    li $t0, 34         # Vf = 34 m/s
-    move $s6, $t0      # Guardar Vf en $s6
-
-    # Calcular variable que se calculará (asumiendo que se calcula d)
-    li $t0, 25          # d = Vi * t + (1/2) * a * t^2
-    lw $t1, 16($s0)     # Convertir Vi a entero
-    lw $t2, 16($s4)     # Convertir t a entero
-    mul $t3, $t1, $t2   # Vi * t
-    li $t4, 1           # 1/2
-    mul $t5, $t4, $t2   # 1/2 * t
-    mul $t6, $t2, $t2   # t^2
-    mul $t7, $t5, $t6   # (1/2) * t^2
-    add $t8, $t3, $t7   # Sumar los productos
-    add $t9, $t8, $t2   # Sumar Vi * t + (1/2) * a * t^2
-    sw $t9, 16($s3)     # Almacenar resultado en d
-
+    move $t4, $v0  # Guardar tiempo en $t4
+    
+    # Inicializar contadores
+    li $t5, 0  # Contador de "x" o "n"
+    li $t6, 0  # Contador de números <= 0
+    
+    # Verificar los valores
+    # Verificar si la velocidad inicial contiene 'x' o 'n'
+    jal check_value
+    
+    # Verificar si la velocidad final contiene 'x' o 'n'
+    jal check_value
+    
+    # Verificar si la aceleración contiene 'x' o 'n'
+    jal check_value
+    
+    # Verificar si la distancia contiene 'x' o 'n'
+    jal check_value
+    
+    # Verificar si el tiempo contiene 'x' o 'n'
+    jal check_value
+    
     # Imprimir resultados
     li $v0, 4
-    la $a0, result1
+    la $a0, msg_result
+    syscall
+    
+    # Imprimir contador de "x" o "n"
+    move $a0, $t5
+    li $v0, 1
+    syscall
+    
+    # Imprimir contador de números <= 0
+    move $a0, $t6
+    li $v0, 1
     syscall
 
-    # Imprimir Velocidad inicial
-    li $v0, 4
-    la $a0, prompt3
-    syscall
-    li $v0, 35
-    lw $a0, 16($s0)
-    syscall
-
-    # Imprimir Distancia
-    li $v0, 4
-    la $a0, prompt6
-    syscall
-    li $v0, 36
-    lw $a0, 16($s3)
-    syscall
-
-    # Terminar el programa
+    # Salir
     li $v0, 10
     syscall
+
+# Subrutina para verificar si un valor contiene 'x' o 'n' o es <= 0
+check_value:
+    # Verificar si el valor es "x" o "n"
+    li $t7, 120  # ASCII de 'x'
+    li $t8, 110  # ASCII de 'n'
+    beq $t0, $t7, increment_xn
+    beq $t0, $t8, increment_xn
+    
+    # Verificar si el valor es <= 0
+    blez $t0, increment_zero_or_negative
+    jr $ra
+    
+increment_xn:
+    addi $t5, $t5, 1  # Incrementar el contador de 'x' o 'n'
+    jr $ra
+    
+increment_zero_or_negative:
+    addi $t6, $t6, 1  # Incrementar el contador de valores <= 0
+    jr $ra
