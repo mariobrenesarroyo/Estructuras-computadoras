@@ -10,7 +10,11 @@ msgCalculoVi: .asciiz "Calculando velocidad inicial...\n"
 msgCalculoVf: .asciiz "Calculando velocidad final...\n"
 msgCalculoD: .asciiz "Calculando distancia...\n"
 msgCalculoT: .asciiz "Calculando tiempo...\n"
-buffer: .space 2  # Espacio para un caracter
+buffer: .space 2  # Espacio para un carácter
+
+# Definir cadenas "x" y "n"
+x: .asciiz "x"
+n: .asciiz "n"
 
 .text
 .globl main
@@ -74,13 +78,13 @@ leer_valor:
     syscall
     lb $t5, buffer # Leer primer carácter
 
-    # Comprobar si es 'x' o 'n'
+    # Comprobar si es 'n' o 'x'
     la $t6, n       # Cargar 'n' en $t6
-    lb $t7, ($t6)   # Leer 'n'
+    lb $t7, ($t6)   # Leer 'n' (valor ASCII)
     beq $t5, $t7, valor_invalido
 
     la $t6, x       # Cargar 'x' en $t6
-    lb $t7, ($t6)   # Leer 'x'
+    lb $t7, ($t6)   # Leer 'x' (valor ASCII)
     beq $t5, $t7, valor_invalido
 
     # Si no es 'x' ni 'n', leer número
