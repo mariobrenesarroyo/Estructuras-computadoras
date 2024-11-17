@@ -30,7 +30,7 @@ main:
 
     # Pedir valores al usuario
     la $t0, input               # Dirección para guardar las entradas
-    jal pedir_valores
+    jal  pedir_valores
 
     # Verificar si A es 'x'
     la $t1, input               # Dirección del valor A (primer valor)
@@ -188,51 +188,34 @@ calcular_a:
     syscall
 
 calcular_b:
-    la $t0, input              # Dirección base de input
-    addi $t0, $t0, 4           # Dirección de B (input[1])
-    lb $t1, 0($t0)             # Cargar el valor de B
+    la $t0, input            # Dirección base de valores
+    lb $t1, 0($t0)           # Cargar A (input[0])
+    lb $t2, 8($t0)           # Cargar C (input[2])
+    lb $t3, 16($t0)          # Cargar E (input[4])
 
-    # Verificar si es un número
-    li $t2, '0'                # ASCII de '0'
-    blt $t1, $t2, es_caracter  # Si es menor que '0', es un carácter
-    li $t2, '9'                # ASCII de '9'
-    bgt $t1, $t2, es_caracter  # Si es mayor que '9', es un carácter
+    #errores
+    la $t5, n                  # Dirección de 'n'
+    lb $t6, 0($t5)             # Cargar el carácter 'n'
+    beq $t1, $t6, print_error  # Si A es 'n', imprimir mensaje de error
+    beq $t2, $t6, print_error  # Si C es 'n', imprimir mensaje de error
+    beq $t3, $t6, print_error  # Si E es 'n', imprimir mensaje de error
 
-    # Si es un número, conviértelo
-    subi $t1, $t1, '0'         # Convertir ASCII a número
-    j continuar_calculo        # Saltar al cálculo
+    mul $t4, $t2, $t3         # t4 = C * E
+    add $t5, $t1, $t4         # t5 = A + C * E
 
-es_caracter:
-    li $t3, 'x'                # Verificar si es 'x'
-    beq $t1, $t3, manejar_x    # Si es 'x', ir a manejar_x
-    li $t3, 'n'                # Verificar si es 'n'
-    beq $t1, $t3, manejar_n    # Si es 'n', ir a manejar_n
-
-    # Si es otro carácter no válido
-    li $v0, 4                  # Mostrar error
-    la $a0, error_char
-    syscall
-    li $v0, 10                 # Salir del programa
+    # Mostrar mensaje exitoso
+    li $v0, 4                 # Llamada para imprimir cadena
+    la $a0, exitosoB          # Mensaje: "Éxito, el cálculo de B es: "
     syscall
 
-manejar_x:
-    # Código para manejar el caso 'x'
-    li $t1, 10                 # Ejemplo: asignar 10 si es 'x'
-    j continuar_calculo
+    # Mostrar valor de B
+    li $v0, 1                 # Llamada para imprimir entero
+    move $a0, $t5             # Mover resultado a $a0
+    syscall
 
-manejar_n:
-    # Código para manejar el caso 'n'
-    li $t1, 0                  # Ejemplo: excluir, asignar 0
-    j continuar_calculo
-
-continuar_calculo:
-    # Continuar con las operaciones con $t1
-    # Aquí pones tu lógica de cálculo
-    j fin_calcular_b           # Saltar al final
-
-fin_calcular_b:
-    # Regresar al llamador
-    jr $ra
+    # Finalizar programa
+    li $v0, 10                # Llamada para terminar el programa
+    syscall
 
 
 calcular_c:
