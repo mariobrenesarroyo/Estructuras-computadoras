@@ -8,7 +8,12 @@ ingreseD:    .asciiz "Ingrese valor D "
 ingreseE:    .asciiz "Ingrese valor E "
 error:      .asciiz "Error: el valor "
 es_n:       .asciiz " es n y no se puede realizar el cálculo.\n"
-exitoso:    .asciiz "Éxito, el cálculo de A es: "
+exitosoA:    .asciiz "Éxito, el cálculo de A es: "
+exitosoB:    .asciiz "Éxito, el cálculo de B es: "
+exitosoC:    .asciiz "Éxito, el cálculo de C es: "
+exitosoD:    .asciiz "Éxito, el cálculo de D es: "
+exitosoE:    .asciiz "Éxito, el cálculo de E es: "
+
 input:      .space 20            # Espacio para almacenar cada entrada
 newline:    .asciiz "\n"
 
@@ -147,92 +152,195 @@ return_pedir:
 # En cada función (calcular_a, calcular_b, etc.), se revisan los valores excluyendo el actual.
 
 calcular_a:
-    # Revisar si B, C, D o E son 'n'
-    la $t0, input              # Dirección base de valores
-    addi $t0, $t0, 4           # Dirección del valor B
-    li $t5, 4                  # Contador de valores restantes (B, C, D, E)
-    j verificar_n
+    la $t0, input             # Dirección base de valores
+    addi $t0, $t0, 4          # Dirección de B (input[1])
+    lb $t1, 0($t0)            # Cargar B
+    addi $t0, $t0, 4          # Dirección de C (input[2])
+    lb $t2, 0($t0)            # Cargar C
+    addi $t0, $t0, 4          # Dirección de E (input[4])
+    lb $t3, 0($t0)            # Cargar E
+
+    #errores
+    la $t5, n                  # Dirección de 'n'
+    lb $t6, 0($t5)             # Cargar el carácter 'n'
+    beq $t1, $t6, print_error  # Si B es 'n', imprimir mensaje de error
+    beq $t2, $t6, print_error  # Si C es 'n', imprimir mensaje de error
+    beq $t3, $t6, print_error  # Si E es 'n', imprimir mensaje de error
+
+    mul $t4, $t2, $t3         # t4 = C * E
+    sub $t5, $t1, $t4         # t5 = B - C * E
+
+    la $t0, input             # Dirección de A (input[0])
+    sb $t5, 0($t0)            # Guardar A en memoria
+
+    # Mostrar mensaje exitoso
+    li $v0, 4                 # Llamada para imprimir cadena
+    la $a0, exitosoA          # Mensaje: "Éxito, el cálculo de A es: "
+    syscall
+
+    # Mostrar valor de A
+    li $v0, 1                 # Llamada para imprimir entero
+    move $a0, $t5             # Mover resultado a $a0
+    syscall
+
+    # Finalizar programa
+    li $v0, 10                # Llamada para terminar el programa
+    syscall
 
 calcular_b:
-    # Revisar si A, C, D o E son 'n'
-    la $t0, input              # Dirección base de valores
-    li $t5, 4                  # Contador de valores restantes (A, C, D, E)
-    j verificar_n
+    la $t0, input             # Dirección base de valores
+    lb $t1, 0($t0)            # Cargar A (input[0])
+    addi $t0, $t0, 8          # Dirección de C (input[2])
+    lb $t2, 0($t0)            # Cargar C
+    addi $t0, $t0, 4          # Dirección de E (input[4])
+    lb $t3, 0($t0)            # Cargar E
+
+    #errores
+    la $t5, n                  # Dirección de 'n'
+    lb $t6, 0($t5)             # Cargar el carácter 'n'
+    beq $t1, $t6, print_error  # Si A es 'n', imprimir mensaje de error
+    beq $t2, $t6, print_error  # Si C es 'n', imprimir mensaje de error
+    beq $t3, $t6, print_error  # Si E es 'n', imprimir mensaje de error
+
+    mul $t4, $t2, $t3         # t4 = C * E
+    add $t5, $t1, $t4         # t5 = A + C * E
+
+    la $t0, input             # Dirección de B (input[1])
+    addi $t0, $t0, 4
+    sb $t5, 0($t0)            # Guardar B en memoria
+
+    # Mostrar mensaje exitoso
+    li $v0, 4                 # Llamada para imprimir cadena
+    la $a0, exitosoB          # Mensaje: "Éxito, el cálculo de B es: "
+    syscall
+
+    # Mostrar valor de B
+    li $v0, 1                 # Llamada para imprimir entero
+    move $a0, $t5             # Mover resultado a $a0
+    syscall
+
+    # Finalizar programa
+    li $v0, 10                # Llamada para terminar el programa
+    syscall
+
 
 calcular_c:
-    # Revisar si A, B, D o E son 'n'
-    la $t0, input              # Dirección base de valores
-    li $t5, 4                  # Contador de valores restantes (A, B, D, E)
-    j verificar_n
+    la $t0, input             # Dirección base de valores
+    addi $t0, $t0, 4          # Dirección de B (input[1])
+    lb $t1, 0($t0)            # Cargar B
+    la $t0, input             # Dirección de A (input[0])
+    lb $t2, 0($t0)            # Cargar A
+    addi $t0, $t0, 12         # Dirección de E (input[4])
+    lb $t3, 0($t0)            # Cargar E
+
+    # Manejo de errores
+    la $t5, n                 # Dirección de 'n'
+    lb $t6, 0($t5)            # Cargar el carácter 'n'
+    beq $t1, $t6, print_error # Si B es 'n', imprimir mensaje de error
+    beq $t2, $t6, print_error # Si A es 'n', imprimir mensaje de error
+    beq $t3, $t6, print_error # Si E es 'n', imprimir mensaje de error
+
+    # Evitar división por cero
+    beqz $t3, print_error     # Si E es 0, error
+
+    sub $t4, $t1, $t2         # t4 = B - A
+    div $t5, $t4, $t3         # t5 = (B - A) / E
+
+    la $t0, input             # Dirección de C (input[2])
+    addi $t0, $t0, 8
+    sb $t5, 0($t0)            # Guardar C en memoria
+
+    # Mostrar mensaje exitoso
+    li $v0, 4                 # Llamada para imprimir cadena
+    la $a0, exitosoC          # Mensaje: "Éxito, el cálculo de C es: "
+    syscall
+
+    # Mostrar valor de C
+    li $v0, 1                 # Llamada para imprimir entero
+    move $a0, $t5             # Mover resultado a $a0
+    syscall
+
+    # Finalizar programa
+    li $v0, 10                # Llamada para terminar el programa
+    syscall
 
 calcular_d:
-    # Revisar si A, B, C o E son 'n'
-    la $t0, input              # Dirección base de valores
-    li $t5, 4                  # Contador de valores restantes (A, B, C, E)
-    j verificar_n
+    la $t0, input             # Dirección base de valores
+    lb $t1, 0($t0)            # Cargar A (input[0])
+    addi $t0, $t0, 4          # Dirección de B (input[1])
+    lb $t2, 0($t0)            # Cargar B
+    addi $t0, $t0, 12         # Dirección de E (input[4])
+    lb $t3, 0($t0)            # Cargar E
+
+    # Manejo de errores
+    la $t5, n                 # Dirección de 'n'
+    lb $t6, 0($t5)            # Cargar el carácter 'n'
+    beq $t1, $t6, print_error # Si A es 'n', imprimir mensaje de error
+    beq $t2, $t6, print_error # Si B es 'n', imprimir mensaje de error
+    beq $t3, $t6, print_error # Si E es 'n', imprimir mensaje de error
+
+    add $t4, $t1, $t2         # t4 = A + B
+    mul $t5, $t4, $t3         # t5 = (A + B) * E
+    sra $t5, $t5, 1           # t5 = ((A + B) * E) / 2 (división rápida por 2)
+
+    la $t0, input             # Dirección de D (input[3])
+    addi $t0, $t0, 12
+    sb $t5, 0($t0)            # Guardar D en memoria
+
+    # Mostrar mensaje exitoso
+    li $v0, 4                 # Llamada para imprimir cadena
+    la $a0, exitosoD          # Mensaje: "Éxito, el cálculo de D es: "
+    syscall
+
+    # Mostrar valor de D
+    li $v0, 1                 # Llamada para imprimir entero
+    move $a0, $t5             # Mover resultado a $a0
+    syscall
+
+    # Finalizar programa
+    li $v0, 10                # Llamada para terminar el programa
+    syscall
 
 calcular_e:
-    # Revisar si A, B, C o D son 'n'
-    la $t0, input              # Dirección base de valores
-    li $t5, 4                  # Contador de valores restantes (A, B, C, D)
-    j verificar_n
+    la $t0, input             # Dirección base de valores
+    addi $t0, $t0, 4          # Dirección de B (input[1])
+    lb $t1, 0($t0)            # Cargar B
+    la $t0, input             # Dirección de A (input[0])
+    lb $t2, 0($t0)            # Cargar A
+    addi $t0, $t0, 8          # Dirección de C (input[2])
+    lb $t3, 0($t0)            # Cargar C
 
-verificar_n:
-    li $t6, 0                  # Bandera de error (0: no error, 1: error encontrado)
-verificar_loop:
-    beqz $t5, calcular_suma    # Si ya se revisaron todos, ir a la suma
+    # Manejo de errores
+    la $t5, n                 # Dirección de 'n'
+    lb $t6, 0($t5)            # Cargar el carácter 'n'
+    beq $t1, $t6, print_error # Si B es 'n', imprimir mensaje de error
+    beq $t2, $t6, print_error # Si A es 'n', imprimir mensaje de error
+    beq $t3, $t6, print_error # Si C es 'n', imprimir mensaje de error
 
-    lb $t1, 0($t0)             # Cargar carácter actual
-    la $t2, n                  # Dirección de 'n'
-    lb $t3, 0($t2)             # Cargar el carácter 'n'
-    beq $t1, $t3, print_error  # Si es 'n', imprimir mensaje de error
+    # Evitar división por cero
+    beqz $t3, print_error     # Si C es 0, error
 
-    addi $t0, $t0, 4           # Mover a la siguiente posición
-    subi $t5, $t5, 1           # Decrementar contador
-    j verificar_loop           # Repetir
+    sub $t4, $t1, $t2         # t4 = B - A
+    div $t5, $t4, $t3         # t5 = (B - A) / C
 
+    la $t0, input             # Dirección de E (input[4])
+    addi $t0, $t0, 12
+    sb $t5, 0($t0)            # Guardar E en memoria
 
-calcular_suma:
-    # Sumar los valores excluyendo el actual
-    li $t7, 0                  # Inicializar la suma en 0
-    la $t0, input              # Dirección de inicio de valores
-    li $t5, 5                  # Total de valores (A, B, C, D, E)
-
-suma_loop:
-    beqz $t5, mostrar_resultado # Si se sumaron todos, mostrar el resultado
-
-    lb $t1, 0($t0)             # Cargar el valor actual
-    add $t7, $t7, $t1          # Sumar el valor
-
-    addi $t0, $t0, 4           # Mover a la siguiente posición
-    subi $t5, $t5, 1           # Decrementar el contador
-    j suma_loop                # Repetir
-
-mostrar_resultado:
-    # Mostrar mensaje de éxito
-    li $v0, 4
-    la $a0, exitoso
+    # Mostrar mensaje exitoso
+    li $v0, 4                 # Llamada para imprimir cadena
+    la $a0, exitosoE          # Mensaje: "Éxito, el cálculo de E es: "
     syscall
 
-    # Mostrar la suma
-    li $v0, 1
-    move $a0, $t7
+    # Mostrar valor de E
+    li $v0, 1                 # Llamada para imprimir entero
+    move $a0, $t5             # Mover resultado a $a0
     syscall
 
-    j return_calcular          # Retornar al flujo principal
-
-
-    # Mostrar salto de línea
-    li $v0, 4
-    la $a0, newline
+    # Finalizar programa
+    li $v0, 10                # Llamada para terminar el programa
     syscall
 
-    # Terminar el programa después de imprimir el resultado
-    li $v0, 10                  # Terminar
-    syscall
-
-return_calcular:
-    jr $ra                     # Regresar al llamador
 
 print_error:
     # Mostrar mensaje de error
