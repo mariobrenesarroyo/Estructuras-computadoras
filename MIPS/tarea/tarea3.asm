@@ -1,7 +1,10 @@
 .data
 # Mensajes
 bienvenida: .asciiz "Bienvenido, ingrese valores x, n, o numeros entre 0 y 100:\n"
-ingrese:    .asciiz "Ingrese valor "
+ingreseA:    .asciiz "Ingrese valor A "
+ingreseB:    .asciiz "Ingrese valor B "
+ingreseC:    .asciiz "Ingrese valor C "
+ingreseD:    .asciiz "Ingrese valor D "
 error:      .asciiz "Error: el valor "
 es_n:       .asciiz " es n y no se puede realizar el cálculo.\n"
 exitoso:    .asciiz "Éxito, el cálculo de A es: "
@@ -42,7 +45,67 @@ pedir_valores:
 pedir_loop:
     beqz $t5, return_pedir     # Si ya se ingresaron 5 valores, regresar
     li $v0, 4
-    la $a0, ingrese            # Mostrar "Ingrese valor"
+    la $a0, ingreseA            # Mostrar "Ingrese valor"
+    syscall
+
+    li $v0, 8                  # Leer valor del usuario
+    la $a0, 0($t6)             # Dirección para almacenar el valor
+    li $a1, 20                 # Tamaño máximo de entrada
+    syscall
+
+    addi $t6, $t6, 4           # Mover a la siguiente posición en input
+    subi $t5, $t5, 1           # Decrementar contador
+    j pedir_B                  # Repetir
+
+pedir_B:
+    beqz $t5, return_pedir     # Si ya se ingresaron 5 valores, regresar
+    li $v0, 4
+    la $a0, ingreseB            # Mostrar "Ingrese valor"
+    syscall
+
+    li $v0, 8                  # Leer valor del usuario
+    la $a0, 0($t6)             # Dirección para almacenar el valor
+    li $a1, 20                 # Tamaño máximo de entrada
+    syscall
+
+    addi $t6, $t6, 4           # Mover a la siguiente posición en input
+    subi $t5, $t5, 1           # Decrementar contador
+    j pedir_C                  # Repetir
+
+pedir_C:
+    beqz $t5, return_pedir     # Si ya se ingresaron 5 valores, regresar
+    li $v0, 4
+    la $a0, ingreseC            # Mostrar "Ingrese valor"
+    syscall
+
+    li $v0, 8                  # Leer valor del usuario
+    la $a0, 0($t6)             # Dirección para almacenar el valor
+    li $a1, 20                 # Tamaño máximo de entrada
+    syscall
+
+    addi $t6, $t6, 4           # Mover a la siguiente posición en input
+    subi $t5, $t5, 1           # Decrementar contador
+    j pedir_D               # Repetir
+
+pedir_D:
+    beqz $t5, return_pedir     # Si ya se ingresaron 5 valores, regresar
+    li $v0, 4
+    la $a0, ingreseD            # Mostrar "Ingrese valor"
+    syscall
+
+    li $v0, 8                  # Leer valor del usuario
+    la $a0, 0($t6)             # Dirección para almacenar el valor
+    li $a1, 20                 # Tamaño máximo de entrada
+    syscall
+
+    addi $t6, $t6, 4           # Mover a la siguiente posición en input
+    subi $t5, $t5, 1           # Decrementar contador
+    j pedir_E               # Repetir
+
+pedir_E:
+    beqz $t5, return_pedir     # Si ya se ingresaron 5 valores, regresar
+    li $v0, 4
+    la $a0, ingreseE            # Mostrar "Ingrese valor"
     syscall
 
     li $v0, 8                  # Leer valor del usuario
@@ -53,6 +116,7 @@ pedir_loop:
     addi $t6, $t6, 4           # Mover a la siguiente posición en input
     subi $t5, $t5, 1           # Decrementar contador
     j pedir_loop               # Repetir
+
 
 return_pedir:
     jr $ra                     # Regresar al llamador
