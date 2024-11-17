@@ -13,6 +13,11 @@ exitosoB:    .asciiz "Éxito, el cálculo de B es: "
 exitosoC:    .asciiz "Éxito, el cálculo de C es: "
 exitosoD:    .asciiz "Éxito, el cálculo de D es: "
 exitosoE:    .asciiz "Éxito, el cálculo de E es: "
+valA:        .asciiz "Se ingresó A como: "
+valB:        .asciiz "Se ingresó B como: "
+valC:        .asciiz "Se ingresó C como: "
+valD:        .asciiz "Se ingresó D como: "
+valE:        .asciiz "Se ingresó E como: "
 
 input:      .space 20            # Espacio para almacenar cada entrada
 newline:    .asciiz "\n"
@@ -193,13 +198,47 @@ calcular_b:
     lb $t2, 8($t0)           # Cargar C (input[2])
     lb $t3, 16($t0)          # Cargar E (input[4])
 
-    #errores
-    la $t5, n                  # Dirección de 'n'
-    lb $t6, 0($t5)             # Cargar el carácter 'n'
+    # Mostrar el valor ingresado de A
+    li $v0, 4                # Llamada para imprimir cadena
+    la $a0, valA             # Mensaje: "Se ingresó A como: "
+    syscall
+    li $v0, 1                # Llamada para imprimir entero
+    move $a0, $t1            # Mover A a $a0
+    syscall
+    li $v0, 11               # Imprimir salto de línea
+    li $a0, '\n'
+    syscall
+
+    # Mostrar el valor ingresado de C
+    li $v0, 4                # Llamada para imprimir cadena
+    la $a0, valC             # Mensaje: "Se ingresó C como: "
+    syscall
+    li $v0, 1                # Llamada para imprimir entero
+    move $a0, $t2            # Mover C a $a0
+    syscall
+    li $v0, 11               # Imprimir salto de línea
+    li $a0, '\n'
+    syscall
+
+    # Mostrar el valor ingresado de E
+    li $v0, 4                # Llamada para imprimir cadena
+    la $a0, valE             # Mensaje: "Se ingresó E como: "
+    syscall
+    li $v0, 1                # Llamada para imprimir entero
+    move $a0, $t3            # Mover E a $a0
+    syscall
+    li $v0, 11               # Imprimir salto de línea
+    li $a0, '\n'
+    syscall
+
+    # Verificar si hay errores (valores 'n')
+    la $t5, n                # Dirección de 'n'
+    lb $t6, 0($t5)           # Cargar el carácter 'n'
     beq $t1, $t6, print_error  # Si A es 'n', imprimir mensaje de error
     beq $t2, $t6, print_error  # Si C es 'n', imprimir mensaje de error
     beq $t3, $t6, print_error  # Si E es 'n', imprimir mensaje de error
 
+    # Realizar el cálculo de B: B = A + C * E
     mul $t4, $t2, $t3         # t4 = C * E
     add $t5, $t1, $t4         # t5 = A + C * E
 
@@ -212,10 +251,14 @@ calcular_b:
     li $v0, 1                 # Llamada para imprimir entero
     move $a0, $t5             # Mover resultado a $a0
     syscall
+    li $v0, 11                # Imprimir salto de línea
+    li $a0, '\n'
+    syscall
 
     # Finalizar programa
     li $v0, 10                # Llamada para terminar el programa
     syscall
+
 
 
 calcular_c:
