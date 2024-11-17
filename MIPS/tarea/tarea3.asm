@@ -1,255 +1,93 @@
 .data
-    msg1: .asciiz "Ingrese (1, 2, 3, 4, 5) para calcular Vi, Vf, A, D, T: "
-    msg2: .asciiz "Ingrese Velocidad inicial (Vi) en m/s: "
-    msg3: .asciiz "Ingrese Velocidad final (Vf) en m/s: "
-    msg4: .asciiz "Ingrese Aceleracion (A) en m/s^2: "
-    msg5: .asciiz "Ingrese Distancia (D) en metros: "
-    msg6: .asciiz "Ingrese Tiempo (T) en segundos: "
-    msg_error: .asciiz "Error: Valor negativo o nulo no permitido.\n"
+# Mensajes
+bienvenida: .asciiz "Bienvenido, ingrese valores x, n, o numeros entre 0 y 100:\n"
+ingrese:    .asciiz "Ingrese valor "
+error:      .asciiz "Error: el valor "
+es_n:       .asciiz " es n y no se puede realizar el cálculo.\n"
+input:      .space 20            # Espacio para almacenar cada entrada
 
-    Vi: .float 0.0
-    Vf: .float 0.0
-    A: .float 0.0
-    D: .float 0.0
-    T: .float 0.0
+# Valores predefinidos
+x: .asciiz "x"                   # Representación de 'x'
+n: .asciiz "n"                   # Representación de 'n'
 
 .text
-    .globl main
 main:
-    # Mostrar mensaje para seleccionar cálculo
+    # Mostrar mensaje de bienvenida
     li $v0, 4
-    la $a0, msg1
+    la $a0, bienvenida
     syscall
 
-    # Leer opción
-    li $v0, 5
+    # Pedir valores al usuario
+    la $t0, input               # Dirección para guardar las entradas
+    jal pedir_valores
+
+    # Verificar si A es 'x'
+    la $t1, input               # Dirección del valor A (primer valor)
+    lb $t2, 0($t1)             # Cargar el carácter de A
+    la $t3, x                   # Dirección de 'x'
+    lb $t4, 0($t3)             # Cargar el carácter 'x'
+    beq $t2, $t4, calcular_a    # Si A es 'x', ir a calcular_a
+
+    # Fin del programa
+    li $v0, 10                  # Terminar
     syscall
-    move $t0, $v0 # Guardar la opción (1-5) en $t0
 
-    # Dependiendo de la opción, proceder con la entrada de datos
-    beq $t0, 1, opcion_1
-    beq $t0, 2, opcion_2
-    beq $t0, 3, opcion_3
-    beq $t0, 4, opcion_4
-    beq $t0, 5, opcion_5
-    j main
+pedir_valores:
+    # Pedir cinco valores al usuario
+    li $t5, 5                  # Contador de valores
+    la $t6, input              # Dirección base para almacenar valores
 
-# Opción 1: Calcular Vi
-opcion_1:
-    # Pedir valores de Vf, A y T
+pedir_loop:
+    beqz $t5, return_pedir     # Si ya se ingresaron 5 valores, regresar
     li $v0, 4
-    la $a0, msg3
+    la $a0, ingrese            # Mostrar "Ingrese valor"
     syscall
-    li $v0, 6
-    syscall
-    move $f1, $f0 # Guardar Vf en $f1
 
+    li $v0, 8                  # Leer valor del usuario
+    la $a0, 0($t6)             # Dirección para almacenar el valor
+    li $a1, 20                 # Tamaño máximo de entrada
+    syscall
+
+    addi $t6, $t6, 4           # Mover a la siguiente posición en input
+    subi $t5, $t5, 1           # Decrementar contador
+    j pedir_loop               # Repetir
+
+return_pedir:
+    jr $ra                     # Regresar al llamador
+
+calcular_a:
+    # Revisar si B, C, D o E son 'n'
+    la $t0, input              # Dirección base de valores
+    addi $t0, $t0, 4           # Dirección del valor B
+    li $t5, 4                  # Contador de valores restantes (B, C, D, E)
+
+calcular_loop:
+    beqz $t5, return_calcular  # Si ya se revisaron todos, regresar
+
+    lb $t1, 0($t0)             # Cargar carácter actual
+    la $t2, n                  # Dirección de 'n'
+    lb $t3, 0($t2)             # Cargar el carácter 'n'
+    beq $t1, $t3, print_error  # Si es 'n', imprimir mensaje de error
+
+    addi $t0, $t0, 4           # Mover a la siguiente posición
+    subi $t5, $t5, 1           # Decrementar contador
+    j calcular_loop            # Repetir
+
+return_calcular:
+    jr $ra                     # Regresar al llamador
+
+print_error:
+    # Mostrar mensaje de error
     li $v0, 4
-    la $a0, msg4
+    la $a0, error
     syscall
-    li $v0, 6
-    syscall
-    move $f2, $f0 # Guardar A en $f2
-
-    li $v0, 4
-    la $a0, msg6
-    syscall
-    li $v0, 6
-    syscall
-    move $f3, $f0 # Guardar T en $f3
-
-    # Comprobar si los valores son negativos o cero
-    blez.s $f1, error
-    blez.s $f2, error
-    blez.s $f3, error
-
-    # Calcular Vi = Vf - A*T
-    sub.s $f4, $f1, $f2 # $f4 = Vf - A
-    mul.s $f4, $f4, $f3 # $f4 = (Vf - A) * T
-
-    # Mostrar resultado
-    li $v0, 4
-    la $a0, msg2
-    syscall
-    li $v0, 6
-    move $f12, $f4 # Mostrar Vi
-    syscall
-    j main
-
-# Opción 2: Calcular Vf
-opcion_2:
-    # Pedir valores de Vi, A y T
-    li $v0, 4
-    la $a0, msg2
-    syscall
-    li $v0, 6
-    syscall
-    move $f1, $f0 # Guardar Vi en $f1
-
-    li $v0, 4
-    la $a0, msg4
-    syscall
-    li $v0, 6
-    syscall
-    move $f2, $f0 # Guardar A en $f2
 
     li $v0, 4
-    la $a0, msg6
+    move $a0, $t0              # Mostrar el valor conflictivo (n)
     syscall
-    li $v0, 6
-    syscall
-    move $f3, $f0 # Guardar T en $f3
-
-    # Comprobar si los valores son negativos o cero
-    blez.s $f1, error
-    blez.s $f2, error
-    blez.s $f3, error
-
-    # Calcular Vf = Vi + A*T
-    mul.s $f4, $f2, $f3 # $f4 = A*T
-    add.s $f5, $f1, $f4 # $f5 = Vi + (A*T)
-
-    # Mostrar resultado
-    li $v0, 4
-    la $a0, msg3
-    syscall
-    li $v0, 6
-    move $f12, $f5 # Mostrar Vf
-    syscall
-    j main
-
-# Opción 3: Calcular A
-opcion_3:
-    # Pedir valores de Vi, Vf y T
-    li $v0, 4
-    la $a0, msg2
-    syscall
-    li $v0, 6
-    syscall
-    move $f1, $f0 # Guardar Vi en $f1
 
     li $v0, 4
-    la $a0, msg3
+    la $a0, es_n
     syscall
-    li $v0, 6
-    syscall
-    move $f2, $f0 # Guardar Vf en $f2
 
-    li $v0, 4
-    la $a0, msg6
-    syscall
-    li $v0, 6
-    syscall
-    move $f3, $f0 # Guardar T en $f3
-
-    # Comprobar si los valores son negativos o cero
-    blez.s $f1, error
-    blez.s $f2, error
-    blez.s $f3, error
-
-    # Calcular A = (Vf - Vi) / T
-    sub.s $f4, $f2, $f1 # $f4 = Vf - Vi
-    div.s $f5, $f4, $f3 # $f5 = (Vf - Vi) / T
-
-    # Mostrar resultado
-    li $v0, 4
-    la $a0, msg4
-    syscall
-    li $v0, 6
-    move $f12, $f5 # Mostrar A
-    syscall
-    j main
-
-# Opción 4: Calcular D
-opcion_4:
-    # Pedir valores de Vi, Vf y A
-    li $v0, 4
-    la $a0, msg2
-    syscall
-    li $v0, 6
-    syscall
-    move $f1, $f0 # Guardar Vi en $f1
-
-    li $v0, 4
-    la $a0, msg3
-    syscall
-    li $v0, 6
-    syscall
-    move $f2, $f0 # Guardar Vf en $f2
-
-    li $v0, 4
-    la $a0, msg4
-    syscall
-    li $v0, 6
-    syscall
-    move $f3, $f0 # Guardar A en $f3
-
-    # Comprobar si los valores son negativos o cero
-    blez.s $f1, error
-    blez.s $f2, error
-    blez.s $f3, error
-
-    # Calcular D = (Vf^2 - Vi^2) / (2 * A)
-    mul.s $f4, $f1, $f1 # $f4 = Vi^2
-    mul.s $f5, $f2, $f2 # $f5 = Vf^2
-    sub.s $f6, $f5, $f4 # $f6 = Vf^2 - Vi^2
-    mul.s $f7, $f3, $f3 # $f7 = 2 * A
-    div.s $f8, $f6, $f7 # $f8 = (Vf^2 - Vi^2) / (2 * A)
-
-    # Mostrar resultado
-    li $v0, 4
-    la $a0, msg5
-    syscall
-    li $v0, 6
-    move $f12, $f8 # Mostrar D
-    syscall
-    j main
-
-# Opción 5: Calcular T
-opcion_5:
-    # Pedir valores de Vi, Vf y A
-    li $v0, 4
-    la $a0, msg2
-    syscall
-    li $v0, 6
-    syscall
-    move $f1, $f0 # Guardar Vi en $f1
-
-    li $v0, 4
-    la $a0, msg3
-    syscall
-    li $v0, 6
-    syscall
-    move $f2, $f0 # Guardar Vf en $f2
-
-    li $v0, 4
-    la $a0, msg4
-    syscall
-    li $v0, 6
-    syscall
-    move $f3, $f0 # Guardar A en $f3
-
-    # Comprobar si los valores son negativos o cero
-    blez.s $f1, error
-    blez.s $f2, error
-    blez.s $f3, error
-
-    # Calcular T = (Vf - Vi) / A
-    sub.s $f4, $f2, $f1 # $f4 = Vf - Vi
-    div.s $f5, $f4, $f3 # $f5 = (Vf - Vi) / A
-
-    # Mostrar resultado
-    li $v0, 4
-    la $a0, msg6
-    syscall
-    li $v0, 6
-    move $f12, $f5 # Mostrar T
-    syscall
-    j main
-
-# Manejo de error
-error:
-    li $v0, 4
-    la $a0, msg_error
-    syscall
-    j main
+    j return_calcular          # Regresar después del error
