@@ -203,10 +203,6 @@ calcular_b:
     mul $t4, $t2, $t3         # t4 = C * E
     add $t5, $t1, $t4         # t5 = A + C * E
 
-    la $t0, input             # Dirección de B (input[1])
-    addi $t0, $t0, 4
-    sb $t5, 0($t0)            # Guardar B en memoria
-
     # Mostrar mensaje exitoso
     li $v0, 4                 # Llamada para imprimir cadena
     la $a0, exitosoB          # Mensaje: "Éxito, el cálculo de B es: "
