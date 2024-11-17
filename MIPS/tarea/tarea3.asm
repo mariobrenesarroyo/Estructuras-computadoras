@@ -4,7 +4,9 @@ bienvenida: .asciiz "Bienvenido, ingrese valores x, n, o numeros entre 0 y 100:\
 ingrese:    .asciiz "Ingrese valor "
 error:      .asciiz "Error: el valor "
 es_n:       .asciiz " es n y no se puede realizar el cálculo.\n"
+exitoso:    .asciiz "Éxito, el cálculo de A es: "
 input:      .space 20            # Espacio para almacenar cada entrada
+newline:    .asciiz "\n"
 
 # Valores predefinidos
 x: .asciiz "x"                   # Representación de 'x'
@@ -61,8 +63,10 @@ calcular_a:
     addi $t0, $t0, 4           # Dirección del valor B
     li $t5, 4                  # Contador de valores restantes (B, C, D, E)
 
+    li $t6, 0                  # Bandera de error (0: no error, 1: error encontrado)
+
 calcular_loop:
-    beqz $t5, return_calcular  # Si ya se revisaron todos, regresar
+    beqz $t5, check_all_values # Si ya se revisaron todos, ir a la comprobación final
 
     lb $t1, 0($t0)             # Cargar carácter actual
     la $t2, n                  # Dirección de 'n'
@@ -72,6 +76,52 @@ calcular_loop:
     addi $t0, $t0, 4           # Mover a la siguiente posición
     subi $t5, $t5, 1           # Decrementar contador
     j calcular_loop            # Repetir
+
+check_all_values:
+    # Si no hubo error (t6 == 0), sumar los valores B, C, D, E
+    beqz $t6, sum_values       # Si no hubo error, continuar con la suma
+
+    # Si hubo error, retornar
+    j return_calcular
+
+sum_values:
+    # Sumar los valores B, C, D, E
+    li $t7, 0                  # Inicializar la suma en 0
+    la $t0, input              # Dirección de inicio de valores
+
+    addi $t0, $t0, 4           # Dirección de B
+    lb $t1, 0($t0)             # Cargar B
+    sub $t7, $t7, $t7          # Asegurarse de que la suma sea 0 inicialmente
+    add $t7, $t7, $t1          # Sumar B
+
+    addi $t0, $t0, 4           # Dirección de C
+    lb $t1, 0($t0)             # Cargar C
+    add $t7, $t7, $t1          # Sumar C
+
+    addi $t0, $t0, 4           # Dirección de D
+    lb $t1, 0($t0)             # Cargar D
+    add $t7, $t7, $t1          # Sumar D
+
+    addi $t0, $t0, 4           # Dirección de E
+    lb $t1, 0($t0)             # Cargar E
+    add $t7, $t7, $t1          # Sumar E
+
+    # Mostrar mensaje de éxito con el cálculo de A
+    li $v0, 4
+    la $a0, exitoso
+    syscall
+
+    # Mostrar el resultado de la suma (A + B + C + D + E)
+    li $v0, 1
+    move $a0, $t7              # Mover la suma a $a0
+    syscall
+
+    # Mostrar salto de línea
+    li $v0, 4
+    la $a0, newline
+    syscall
+
+    j return_calcular          # Regresar después de mostrar el mensaje
 
 return_calcular:
     jr $ra                     # Regresar al llamador
