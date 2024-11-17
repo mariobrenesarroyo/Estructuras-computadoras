@@ -191,11 +191,6 @@ verificar_loop:
     subi $t5, $t5, 1           # Decrementar contador
     j verificar_loop           # Repetir
 
-print_error:
-    li $v0, 4
-    la $a0, mensaje_error      # Mensaje de error
-    syscall
-    j return_calcular          # Retornar al flujo principal
 
 calcular_suma:
     # Sumar los valores excluyendo el actual
