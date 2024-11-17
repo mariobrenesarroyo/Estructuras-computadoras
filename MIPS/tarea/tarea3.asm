@@ -30,7 +30,7 @@ main:
     lb $t4, 0($t3)             # Cargar el carácter 'x'
     beq $t2, $t4, calcular_a    # Si A es 'x', ir a calcular_a
 
-    # Fin del programa
+    # Fin del programa si no es 'x'
     li $v0, 10                  # Terminar
     syscall
 
@@ -121,7 +121,9 @@ sum_values:
     la $a0, newline
     syscall
 
-    j return_calcular          # Regresar después de mostrar el mensaje
+    # Terminar el programa después de imprimir el resultado
+    li $v0, 10                  # Terminar
+    syscall
 
 return_calcular:
     jr $ra                     # Regresar al llamador
@@ -140,4 +142,6 @@ print_error:
     la $a0, es_n
     syscall
 
-    j return_calcular          # Regresar después del error
+    # Terminar el programa después de imprimir el error
+    li $v0, 10                  # Terminar
+    syscall
