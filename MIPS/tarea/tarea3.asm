@@ -1,6 +1,6 @@
 .data
 # Mensajes
-bienvenida: .asciiz "Bienvenido, ingrese valores x, n, o numeros entre 0 y 100:\n"
+bienvenida: .asciiz "Bienvenido, ingrese valores x, n, x para calcular, n para excluir:\n"
 ingreseA:    .asciiz "Ingrese valor A "
 ingreseB:    .asciiz "Ingrese valor B "
 ingreseC:    .asciiz "Ingrese valor C "
@@ -69,7 +69,7 @@ pedir_valores:
     li $t5, 5                  # Contador de valores
     la $t6, input              # Dirección base para almacenar valores
 
-pedir_loop:
+pedir_A:
     beqz $t5, return_pedir     # Si ya se ingresaron 5 valores, regresar
     li $v0, 4
     la $a0, ingreseA            # Mostrar "Ingrese valor"
@@ -142,7 +142,7 @@ pedir_E:
 
     addi $t6, $t6, 4           # Mover a la siguiente posición en input
     subi $t5, $t5, 1           # Decrementar contador
-    j pedir_loop               # Repetir
+    j pedir_A               # Repetir
 
 
 return_pedir:
@@ -188,12 +188,10 @@ calcular_a:
     syscall
 
 calcular_b:
-    la $t0, input             # Dirección base de valores
-    lb $t1, 0($t0)            # Cargar A (input[0])
-    addi $t0, $t0, 8          # Dirección de C (input[2])
-    lb $t2, 0($t0)            # Cargar C
-    addi $t0, $t0, 4          # Dirección de E (input[4])
-    lb $t3, 0($t0)            # Cargar E
+    la $t0, input            # Dirección base de valores
+    lb $t1, 0($t0)           # Cargar A (input[0])
+    lb $t2, 8($t0)           # Cargar C (input[2])
+    lb $t3, 16($t0)          # Cargar E (input[4])
 
     #errores
     la $t5, n                  # Dirección de 'n'
