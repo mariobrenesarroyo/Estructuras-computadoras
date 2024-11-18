@@ -1,31 +1,64 @@
 .data
-    ingreso: .asciiz "\nIngrese un numero flotante: "        # Mensaje para solicitar flotante
-    mensaje_four: .asciiz "El flotante ingresado es:  " # Mensaje antes de mostrar el flotante
-    mensaje_fin: .asciiz "\nLos valores flotantes ingresados son:\n" # Mensaje antes de imprimir flotantes
-    flotantes: .space 20          # Espacio para almacenar 5 flotantes (4 bytes cada uno, 5x4=20 bytes)
-
+    ingreso: .asciiz "\nIngrese un número flotante o una letra (n/x): "
+    mensaje_n: .asciiz "Ingresaste la letra 'n', valor predeterminado asignado.\n"
+    mensaje_x: .asciiz "Ingresaste la letra 'x', valor predeterminado asignado.\n"
+    mensaje_default: .asciiz "Flotante válido ingresado.\n"
 
 .text
     main:
         # Mostrar mensaje de solicitud
-        la $a0, ingreso         # Carga la dirección del mensaje "Ingrese un número flotante"
-        addiu $v0, $zero, 4     # Llamada al sistema para imprimir string
+        la $a0, ingreso         # Carga la dirección del mensaje
+        li $v0, 4               # Llamada al sistema para imprimir string
         syscall
 
         # Leer número flotante ingresado
-        li $v0, 6               # Llamada al sistema para leer un número flotante
+        li $v0, 6               # Llamada al sistema para leer flotante
         syscall
-        mov.s $f12, $f0         # Mueve el número leído de $f0 a $f12 (preparación para impresión)
+        mov.s $f1, $f0          # Almacena el número leído en $f1
 
-        # Mostrar mensaje antes de imprimir el flotante
-        la $a0, mensaje_four    # Carga la dirección del mensaje "El flotante ingresado es:"
-        addiu $v0, $zero, 4     # Llamada al sistema para imprimir string
+        # Verificar si el usuario ingresó 'n' o 'x'
+        mfc1 $t0, $f0           # Mueve el valor en $f0 a $t0 para manipulación
+        li $t1, 0x3EB73190      # Valor hexadecimal correspondiente a 'n'
+        li $t2, 0x3D00ECFA      # Valor hexadecimal correspondiente a 'x'
+
+        # Comparar con 'n'
+        beq $t0, $t1, letra_n
+
+        # Comparar con 'x'
+        beq $t0, $t2, letra_x
+
+        # Si no es una letra conocida, asumir valor válido
+        j flotante_valido
+
+    letra_n:
+        # Mensaje para la letra 'n'
+        la $a0, mensaje_n
+        li $v0, 4
         syscall
 
-        # Imprimir el número flotante ingresado
-        addiu $v0, $zero, 2     # Llamada al sistema para imprimir un número flotante
+        # Asignar valor 3EB73190 a $f1
+        li $t0, 0x3EB73190
+        mtc1 $t0, $f1
+        j fin
+
+    letra_x:
+        # Mensaje para la letra 'x'
+        la $a0, mensaje_x
+        li $v0, 4
         syscall
 
+        # Asignar valor 3D00ECFA a $f1
+        li $t0, 0x3D00ECFA
+        mtc1 $t0, $f1
+        j fin
+
+    flotante_valido:
+        # Mensaje para flotante válido
+        la $a0, mensaje_default
+        li $v0, 4
+        syscall
+
+    fin:
         # Terminar el programa
-        li $v0, 10              # Llamada al sistema para salir del programa
+        li $v0, 10
         syscall
