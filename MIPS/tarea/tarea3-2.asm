@@ -74,10 +74,6 @@ pedir_valores:
     li $t5, 5                  # Contador de valores
     la $t6, input              # Dirección base para almacenar valores
 
-pedir_valores:
-    li $t5, 5                 # Contador de valores a ingresar
-    la $t6, input             # Dirección base para almacenamiento temporal
-    move $t7, $zero           # Índice para seleccionar mensaje (0 a 4)
 
 pedir:
     beqz $t5, fin_pedir       # Si ya se ingresaron 5 valores, terminar
