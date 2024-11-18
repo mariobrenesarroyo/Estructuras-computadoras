@@ -31,16 +31,7 @@
         # Si no es una letra conocida, asumir valor válido
         j flotante_valido
 
-        # Mostrar mensaje antes de imprimir el flotante
-        la $a0,ms    # Carga la dirección del mensaje "El flotante ingresado es:"
-        addiu $v0, $zero, 4     # Llamada al sistema para imprimir string
-        syscall
-
-        mov.s $f12, $f1  # Mueve el valor de $f1 a $f12
-
-        # Imprimir el número flotante ingresado
-        addiu $v0, $zero, 2     # Llamada al sistema para imprimir un número flotante
-        syscall
+        
 
 
     letra_n:
@@ -69,6 +60,17 @@
         # Mensaje para flotante válido
         la $a0, mensaje_default
         li $v0, 4
+        syscall
+
+        # Mostrar mensaje antes de imprimir el flotante
+        la $a0,ms    # Carga la dirección del mensaje "El flotante ingresado es:"
+        addiu $v0, $zero, 4     # Llamada al sistema para imprimir string
+        syscall
+
+        mov.s $f12, $f1  # Mueve el valor de $f1 a $f12
+
+        # Imprimir el número flotante ingresado
+        addiu $v0, $zero, 2     # Llamada al sistema para imprimir un número flotante
         syscall
 
     fin:
