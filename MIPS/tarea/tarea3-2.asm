@@ -3,6 +3,7 @@
     result_msg: .asciiz "El numero al cuadrado es: "
     error_msg: .asciiz "Error: El numero ingresado es un numero NaN\n"
     newline: .asciiz "\n"
+    nan_value: .float 0x7fc00000  # Valor de NaN en formato IEEE 754
 
 .text
     .globl main
@@ -18,10 +19,13 @@ main:
     
     # El valor flotante ingresado se almacena en $f0 (registro de punto flotante)
     
+    # Cargar el valor NaN desde la sección de datos
+    la $t0, nan_value    # Cargar la dirección de la variable 'nan_value'
+    l.s $f2, 0($t0)      # Cargar NaN en $f2
+    
     # Comprobar si el número ingresado es NaN
-    li.s $f2, 0x7fc00000  # Cargar el valor de NaN en formato IEEE 754 (32 bits)
-    c.eq.s $f0, $f2       # Comparar el número ingresado con NaN
-    bc1t is_nan           # Si es NaN, ir a la etiqueta is_nan
+    c.eq.s $f0, $f2      # Comparar el número ingresado con NaN
+    bc1t is_nan          # Si es NaN, ir a la etiqueta is_nan
     
     # Si no es NaN, cuadramos el número
     mul.s $f2, $f0, $f0  # $f2 = $f0 * $f0 (cuadrado del número)
