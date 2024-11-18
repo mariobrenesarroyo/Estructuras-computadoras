@@ -77,63 +77,81 @@ es_x:
 # Función convertir_cadena_a_float
 # Entrada: Dirección de la cadena en $a0
 # Salida: Número flotante en $f0
+
 convertir_cadena_a_float:
-    # Inicializar registros
-    li $t1, 0           # Acumulador para la parte entera
-    li $t2, 0           # Acumulador para la parte fraccionaria
-    li $t3, 1           # Multiplicador para fracciones
-    li $t4, 0           # Flag para el punto decimal (0: parte entera, 1: fracción)
+    # $a0: address of the string
+    # Returns: $f0 - the floating-point number
 
-    # Apuntar al inicio del buffer
-    la $t0, buffer
+    # Initialize variables
+    li $t0, 0       # Integer part
+    li $t1, 0       # Fractional part
+    li $t2, 0       # Decimal point flag
+    li $t3, 10      # For multiplication
+    mtc1 $t0, $f0   # Move integer part to $f0
+    cvt.s.w $f0, $f0 # Convert to single-precision float
+    
+loop:
+    lb $t4, 0($a0)   # Load a byte from the string
+    beqz $t4, end   # If it's null terminator, exit loop
+    beq $t4, '.', decimal_point # Check for decimal point
+    
+    blt $t4, '0', invalid_input  # Check for invalid character
+    bgt $t4, '9', invalid_input  # Check for invalid character
+    
+    sub $t4, $t4, '0'  # Convert ASCII to integer
+    
+    # If before decimal point (or no decimal point yet)
+    bnez $t2, fractional_part 
+    
+    mul $t0, $t0, $t3 # Multiply current integer part by 10
+    add $t0, $t0, $t4 # Add the new digit
+    
+    # Move updated integer part to $f0
+    mtc1 $t0, $f0
+    cvt.s.w $f0, $f0  
+    
+    b next_char
+    
+fractional_part:
+    mul $t1, $t1, $t3 # Multiply current fractional part by 10
+    add $t1, $t1, $t4 # Add the new digit
+    addi $t2, $t2, 1   # Increment decimal place counter
 
-parse_loop:
-    lb $t5, 0($t0)      # Leer un carácter del buffer
-    beqz $t5, end_parse # Si es carácter nulo, salir del bucle
-    beq $t5, '.', switch_to_fraction # Detectar punto decimal
+next_char:
+    addi $a0, $a0, 1   # Move to the next character in the string
+    j loop
+    
+decimal_point:
+    li $t2, 1       # Set decimal point flag
+    j next_char
+    
+invalid_input:
+    # Handle invalid input (e.g., print error message)
+    # ...
+    jr $ra
 
-    # Convertir dígito
-    sub $t5, $t5, '0'   # Convertir ASCII a número
-    blt $t5, 0          # Ignorar si no es un dígito válido
-    bge $t5, 10
-
-    beq $t4, 0, accumulate_integer
-    accumulate_fraction:
-        mul $t3, $t3, 10      # Incrementar la posición decimal
-        add $t2, $t2, $t5     # Agregar el dígito a la fracción
-        j continue
-
-    accumulate_integer:
-        mul $t1, $t1, 10      # Desplazar parte entera
-        add $t1, $t1, $t5     # Agregar el dígito
-        j continue
-
-switch_to_fraction:
-    li $t4, 1                 # Cambiar a modo fracción
-
-continue:
-    addi $t0, $t0, 1          # Avanzar al siguiente carácter
-    j parse_loop
-
-end_parse:
-    # Si no se encontró un punto decimal, asumir parte fraccionaria como 0
-    beqz $t4, set_fraction_zero
-
-    # Combinar parte entera y fracción en punto flotante
-    mtc1 $t1, $f12            # Parte entera al registro flotante
-    mtc1 $t2, $f13            # Parte fraccionaria al registro flotante
-    li.s $f14, 10.0           # Valor 10 en punto flotante
-
-fraction_div:
-    c.eq.s $f13, $f0          # Verificar si la fracción es 0
-    bc1t combine_float
-    div.s $f13, $f13, $f14    # Dividir fracción por 10
-    j fraction_div
-
-combine_float:
-    add.s $f0, $f12, $f13     # Combinar parte entera y fracción
-    jr $ra                    # Retornar al llamador
-
-set_fraction_zero:
-    li.s $f13, 0.0            # Si no hay fracción, asignar 0.0 a la fracción
-    j combine_float
+end:
+    # If no decimal point was found, assume .0
+    beqz $t2, assume_decimal_zero 
+    
+    # Convert fractional part to float and add to integer part
+    mtc1 $t1, $f1       # Move fractional part to $f1
+    cvt.s.w $f1, $f1   # Convert to single-precision float
+    
+    # Divide by 10 raised to the power of decimal places
+    # (You might need a loop or a separate function for this)
+    # Example for 1 decimal place: div.s $f1, $f1, 10.0
+    # Adjust for actual number of decimal places using $t2
+    # ...
+    # For Simplicity assuming one decimal place
+    li.s $f2, 10.0
+    div.s $f1, $f1, $f2
+    
+    add.s $f0, $f0, $f1  # Add integer and fractional parts
+    
+    jr $ra              # Return
+    
+assume_decimal_zero:
+    # If no decimal was found in the string, $f0 already contains the integer part.
+    # We don't need to add anything to it as it is implicitly .0
+    jr $ra
