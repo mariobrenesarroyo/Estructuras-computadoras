@@ -20,6 +20,7 @@ valD:        .asciiz "Se ingresó D como: "
 valE:        .asciiz "Se ingresó E como: "
 
 input:      .space 20            # Espacio para almacenar cada entrada
+input_buffer:      .space 20            # Espacio para almacenar cada entrada
 newline:    .asciiz "\n"
 
 # Valores predefinidos
