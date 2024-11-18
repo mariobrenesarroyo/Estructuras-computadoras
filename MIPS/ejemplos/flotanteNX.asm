@@ -5,6 +5,7 @@
     n: .asciiz "n"
     ms1: .asciiz "el valor ingresado es una n"
     ms2: .asciiz "el valor ingresado es una x"
+    buffer: .space 20 # Espacio para almacenar la cadena de entrada
 
 .text
 main:
