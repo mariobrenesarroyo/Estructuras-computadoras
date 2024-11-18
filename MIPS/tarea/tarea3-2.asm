@@ -20,6 +20,7 @@ valD:        .asciiz "Se ingresó D como: "
 valE:        .asciiz "Se ingresó E como: "
 
 input:      .space 20            # Espacio para almacenar cada entrada
+input_buffer: .space 20     # Buffer para entrada del usuario
 newline:    .asciiz "\n"
 
 # Valores predefinidos
@@ -146,6 +147,13 @@ main:
 
     fin_pedir:
         jr $ra                    # Regresar al llamador
+
+    # Función para convertir cadena a flotante
+    convertir_a_flotante:
+    li $v0, 2                 # Syscall para convertir cadena a flotante
+    la $a0, input_buffer      # Dirección de la cadena
+    syscall
+    jr $ra                    # Regresar
 
 
 # Revisar si alguno de los otros valores es 'n'
