@@ -10,7 +10,7 @@
 main:
     # Mostrar mensaje de solicitud
     la $a0, ingreso         # Carga la dirección del mensaje "Ingrese un número flotante"
-    addiu $v0, 4            # Llamada al sistema para imprimir string
+    addiu $v0,$zero,4            # Llamada al sistema para imprimir string
     syscall
 
     # Leer número flotante ingresado
@@ -24,7 +24,7 @@ main:
 
     # Mostrar mensaje antes de imprimir el flotante
     la $a0, mensaje_four    # Carga la dirección del mensaje "El flotante ingresado es:"
-    addiu $v0, 4            # Llamada al sistema para imprimir string
+    addiu $v0,$zero,4            # Llamada al sistema para imprimir string
     syscall
 
     # Imprimir el número flotante ingresado
@@ -55,12 +55,12 @@ verificar_entrada:
 
 es_n:
     la $a0, ms1             # Cargar dirección del mensaje "el valor ingresado es una n"
-    addiu $v0, 4            # Llamada al sistema para imprimir string
+    addiu $v0,$zero,4            # Llamada al sistema para imprimir string
     syscall
     jr $ra
 
 es_x:
     la $a0, ms2             # Cargar dirección del mensaje "el valor ingresado es una x"
-    addiu $v0, 4            # Llamada al sistema para imprimir string
+    addiu $v0,$zero,4            # Llamada al sistema para imprimir string
     syscall
     jr $ra
