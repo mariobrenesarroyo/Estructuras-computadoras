@@ -144,7 +144,11 @@ end:
     # Adjust for actual number of decimal places using $t2
     # ...
     # For Simplicity assuming one decimal place
-    li.s $f2, 10.0
+    lui $t5, 0x4120     # Load upper 16 bits of 10.0 (0x41200000)
+    ori $t5, $t5, 0x0000 # Set lower 16 bits to 0 (not necessary here, but included for clarity)
+    mtc1 $t5, $f2      # Move the value from $t5 to $f2
+    cvt.s.w $f2, $f2    # Convert to single-precision floatin
+    
     div.s $f1, $f1, $f2
     
     add.s $f0, $f0, $f1  # Add integer and fractional parts
