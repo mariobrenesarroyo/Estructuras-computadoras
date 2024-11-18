@@ -43,4 +43,8 @@
         addiu $t1, $t1, 4        # Incrementa la dirección del arreglo (siguiente posición)
         addiu $t0, $t0, 1        # Incrementa el contador
         li $t2, 5                # Valor máximo del contador
-        bne $t0, $t2,
+        bne $t0, $t2, imprimir_flotantes # Si no hemos imprimido 5 flotantes, repite el bucle
+
+    # Terminar el programa
+    li $v0, 10                   # Llamada al sistema para salir del programa
+    syscall
