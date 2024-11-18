@@ -3,7 +3,7 @@
     result_msg: .asciiz "El numero al cuadrado es: "
     error_msg: .asciiz "Error: El numero ingresado es un numero NaN\n"
     newline: .asciiz "\n"
-    nan_value: .float 0x7fc00000  # Valor de NaN en formato IEEE 754
+    nan_value: .float 0x7fffeffc  # Valor de NaN en formato IEEE 754
 
 .text
     .globl main
