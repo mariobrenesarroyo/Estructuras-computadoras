@@ -20,7 +20,6 @@ valD:        .asciiz "Se ingresó D como: "
 valE:        .asciiz "Se ingresó E como: "
 
 input:      .space 20            # Espacio para almacenar cada entrada
-input_buffer: .space 20     # Buffer para entrada del usuario
 newline:    .asciiz "\n"
 
 # Valores predefinidos
@@ -35,126 +34,154 @@ main:
     syscall
 
     # Pedir valores al usuario
-    jal pedir_valores
+    la $t0, input               # Dirección para guardar las entradas
+    jal  pedir_valores
 
-    # Verificar si alguno de los valores es 'x'
-    li $t0, 'x'
-    beq $s3, $t0, calcular_a
-    beq $s4, $t0, calcular_b
-    beq $s5, $t0, calcular_c
-    beq $s6, $t0, calcular_d
-    beq $s7, $t0, calcular_e
+    # Verificar si A es 'x'
+    la $t1, input               # Dirección del valor A (primer valor)
+    lb $t2, 0($t1)             # Cargar el carácter de A
+    la $t3, x                   # Dirección de 'x'
+    lb $t4, 0($t3)             # Cargar el carácter 'x'
+    beq $t2, $t4, calcular_a    # Si A es 'x', ir a calcular_a
 
-    # Fin del programa si no hay 'x'
-    li $v0, 10
+    # Verificar si B es 'x'
+    la $t1, input               # Dirección del valor B (segundo valor)
+    lb $t2, 4($t1)             # Cargar el carácter de B (el segundo valor se encuentra a 4 bytes de 'input')
+    beq $t2, $t4, calcular_b    # Si B es 'x', ir a calcular_b
+
+    # Verificar si C es 'x'
+    la $t1, input               # Dirección del valor C (tercer valor)
+    lb $t2, 8($t1)             # Cargar el carácter de C (el tercer valor está a 8 bytes de 'input')
+    beq $t2, $t4, calcular_c    # Si C es 'x', ir a calcular_c
+
+    # Verificar si D es 'x'
+    la $t1, input               # Dirección del valor D (cuarto valor)
+    lb $t2, 12($t1)             # Cargar el carácter de D (el cuarto valor está a 12 bytes de 'input')
+    beq $t2, $t4, calcular_d    # Si D es 'x', ir a calcular_d
+
+    # Verificar si E es 'x'
+    la $t1, input               # Dirección del valor E (quinto valor)
+    lb $t2, 16($t1)             # Cargar el carácter de E (el quinto valor está a 16 bytes de 'input')
+    beq $t2, $t4, calcular_e    # Si E es 'x', ir a calcular_e
+    
+
+    # Fin del programa si no es 'x'
+    li $v0, 10                  # Terminar
     syscall
 
-    pedir_valores:
-        li $t5, 5                 # Contador de valores a ingresar
-        move $t7, $zero           # Índice para seleccionar mensaje (0 a 4)
+pedir_valores:
+    # Pedir cinco valores al usuario
+    li $t5, 5                  # Contador de valores
+    la $t6, input              # Dirección base para almacenar valores
 
-    pedir:
-        beqz $t5, fin_pedir       # Si ya se ingresaron 5 valores, terminar
+pedir_valores:
+    li $t5, 5                 # Contador de valores a ingresar
+    la $t6, input             # Dirección base para almacenamiento temporal
+    move $t7, $zero           # Índice para seleccionar mensaje (0 a 4)
 
-        # Seleccionar mensaje según índice
-        li $t0, 0
-        beq $t7, $t0, mostrar_ingreseA
-        li $t0, 1
-        beq $t7, $t0, mostrar_ingreseB
-        li $t0, 2
-        beq $t7, $t0, mostrar_ingreseC
-        li $t0, 3
-        beq $t7, $t0, mostrar_ingreseD
-        li $t0, 4
-        beq $t7, $t0, mostrar_ingreseE
+pedir:
+    beqz $t5, fin_pedir       # Si ya se ingresaron 5 valores, terminar
 
-    mostrar_ingreseA:
-        la $a0, ingreseA
-        j mostrar_mensaje
-    mostrar_ingreseB:
-        la $a0, ingreseB
-        j mostrar_mensaje
-    mostrar_ingreseC:
-        la $a0, ingreseC
-        j mostrar_mensaje
-    mostrar_ingreseD:
-        la $a0, ingreseD
-        j mostrar_mensaje
-    mostrar_ingreseE:
-        la $a0, ingreseE
+    # Seleccionar mensaje según índice
+    li $t0, 0
+    beq $t7, $t0, mostrar_ingreseA
+    li $t0, 1
+    beq $t7, $t0, mostrar_ingreseB
+    li $t0, 2
+    beq $t7, $t0, mostrar_ingreseC
+    li $t0, 3
+    beq $t7, $t0, mostrar_ingreseD
+    li $t0, 4
+    beq $t7, $t0, mostrar_ingreseE
 
-    mostrar_mensaje:
-        li $v0, 4                 # Syscall para imprimir mensaje
-        syscall
+mostrar_ingreseA:
+    la $a0, ingreseA
+    j mostrar_mensaje
+mostrar_ingreseB:
+    la $a0, ingreseB
+    j mostrar_mensaje
+mostrar_ingreseC:
+    la $a0, ingreseC
+    j mostrar_mensaje
+mostrar_ingreseD:
+    la $a0, ingreseD
+    j mostrar_mensaje
+mostrar_ingreseE:
+    la $a0, ingreseE
 
-        # Leer valor del usuario
-        li $v0, 8                 # Leer cadena del usuario
-        la $a0, input_buffer      # Buffer para entrada
-        li $a1, 20                # Tamaño máximo de entrada
-        syscall
+mostrar_mensaje:
+    li $v0, 4                 # Syscall para imprimir mensaje
+    syscall
 
-        # Validar si es un carácter especial ('x' o 'n')
-        lb $t0, input_buffer      # Leer primer carácter
-        li $t1, 'x'
-        beq $t0, $t1, almacenar_caracter
-        li $t1, 'n'
-        beq $t0, $t1, almacenar_caracter
+    # Leer valor del usuario
+    li $v0, 8                 # Leer cadena del usuario
+    la $a0, input_buffer      # Buffer para entrada
+    li $a1, 20                # Tamaño máximo de entrada
+    syscall
 
-        # Convertir a flotante
-        jal convertir_a_flotante  # Intentar conversión a flotante
-        mov.s $f12, $f0           # Guardar flotante convertido en $f12
-        j almacenar_numero        # Ir a almacenar el valor
+    # Validar si es un carácter especial ('x' o 'n')
+    lb $t0, input_buffer      # Leer primer carácter
+    li $t1, 'x'
+    beq $t0, $t1, almacenar_caracter
+    li $t1, 'n'
+    beq $t0, $t1, almacenar_caracter
 
-    almacenar_caracter:
-        move $t1, $t0             # Almacenar carácter ASCII en $t1
-        j guardar_registro
+    # Convertir a flotante o entero
+    jal convertir_a_flotante  # Intentar conversión a flotante
+    mov.s $f12, $f0           # Guardar flotante convertido en $f12
+    j almacenar_numero        # Ir a almacenar el valor
 
-    almacenar_numero:
-        mov.s $f12, $f0           # Guardar flotante convertido en $f12
+almacenar_caracter:
+    sb $t0, 0($t6)            # Almacenar carácter ASCII en memoria
+    j guardar_registro
 
-    guardar_registro:
-        # Guardar en registros específicos según índice
-        li $t0, 0
-        beq $t7, $t0, guardar_s3
-        li $t0, 1
-        beq $t7, $t0, guardar_s4
-        li $t0, 2
-        beq $t7, $t0, guardar_s5
-        li $t0, 3
-        beq $t7, $t0, guardar_s6
-        li $t0, 4
-        beq $t7, $t0, guardar_s7
+almacenar_numero:
+    s.s $f12, 0($t6)          # Almacenar flotante en memoria
 
-    guardar_s3:
-        move $s3, $t1             # Guardar valor en $s3
-        j siguiente
-    guardar_s4:
-        move $s4, $t1             # Guardar valor en $s4
-        j siguiente
-    guardar_s5:
-        move $s5, $t1             # Guardar valor en $s5
-        j siguiente
-    guardar_s6:
-        move $s6, $t1             # Guardar valor en $s6
-        j siguiente
-    guardar_s7:
-        move $s7, $t1             # Guardar valor en $s7
+guardar_registro:
+    # Guardar en registros específicos según índice
+    li $t0, 0
+    beq $t7, $t0, guardar_s3
+    li $t0, 1
+    beq $t7, $t0, guardar_s4
+    li $t0, 2
+    beq $t7, $t0, guardar_s5
+    li $t0, 3
+    beq $t7, $t0, guardar_s6
+    li $t0, 4
+    beq $t7, $t0, guardar_s7
+    j siguiente
 
-    siguiente:
-        addi $t7, $t7, 1          # Incrementar índice
-        subi $t5, $t5, 1          # Decrementar contador
-        j pedir                   # Repetir para el siguiente valor
+guardar_s3:
+    lw $s3, 0($t6)            # Almacenar en $s3
+    j siguiente
+guardar_s4:
+    lw $s4, 0($t6)            # Almacenar en $s4
+    j siguiente
+guardar_s5:
+    lw $s5, 0($t6)            # Almacenar en $s5
+    j siguiente
+guardar_s6:
+    lw $s6, 0($t6)            # Almacenar en $s6
+    j siguiente
+guardar_s7:
+    lw $s7, 0($t6)            # Almacenar en $s7
 
-    fin_pedir:
-        jr $ra                    # Regresar al llamador
+siguiente:
+    addi $t6, $t6, 4          # Mover a la siguiente posición en input
+    addi $t7, $t7, 1          # Incrementar índice
+    subi $t5, $t5, 1          # Decrementar contador
+    j pedir                   # Repetir para el siguiente valor
 
-    # Función para convertir cadena a flotante
-    convertir_a_flotante:
+fin_pedir:
+    jr $ra                    # Regresar al llamador
+
+# Función para convertir cadena a flotante
+convertir_a_flotante:
     li $v0, 2                 # Syscall para convertir cadena a flotante
     la $a0, input_buffer      # Dirección de la cadena
     syscall
     jr $ra                    # Regresar
-
 
 # Revisar si alguno de los otros valores es 'n'
 # En cada función (calcular_a, calcular_b, etc.), se revisan los valores excluyendo el actual.
