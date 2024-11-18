@@ -1,5 +1,6 @@
 .data
     ingreso: .asciiz "\nIngrese un numero flotante: "        # Mensaje para solicitar flotante
+    mensaje_four: .asciiz "El flotante ingresado es:  " # Mensaje antes de mostrar el flotante
     mensaje_fin: .asciiz "\nLos valores flotantes ingresados son:\n" # Mensaje antes de imprimir flotantes
     flotantes: .space 20          # Espacio para almacenar 5 flotantes (4 bytes cada uno, 5x4=20 bytes)
 
