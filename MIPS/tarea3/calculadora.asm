@@ -8,11 +8,11 @@ ingreseD:      .asciiz "Ingrese valor D (m): "
 ingreseE:      .asciiz "Ingrese valor T (s): "
 error_120:     .asciiz "Error: el valor es 120.0 y no se puede realizar el cálculo.\n"
 error_neg:     .asciiz "Error: el valor es negativo y no se puede realizar el cálculo.\n"
-exitosoA:      .asciiz "Éxito, el cálculo de Vi (m/s) es: %f\n"
-exitosoB:      .asciiz "Éxito, el cálculo de Vf (m/s) es: %f\n"
-exitosoC:      .asciiz "Éxito, el cálculo de A (m/s^2) es: %f\n"
-exitosoD:      .asciiz "Éxito, el cálculo de D (m) es: %f\n"
-exitosoE:      .asciiz "Éxito, el cálculo de T (s) es: %f\n"
+exitosoA:      .asciiz "Éxito, el cálculo de Vi (m/s) es:"
+exitosoB:      .asciiz "Éxito, el cálculo de Vf (m/s) es: "
+exitosoC:      .asciiz "Éxito, el cálculo de A (m/s^2) es: "
+exitosoD:      .asciiz "Éxito, el cálculo de D (m) es: "
+exitosoE:      .asciiz "Éxito, el cálculo de T (s) es: "
 ingrese_salir: .asciiz "Ingrese cualquier tecla  para un nuevo cálculo o  la palabra salir para salir: "
 salir_opcion:  .asciiz "salir"
 newline:       .asciiz "\n"
@@ -347,9 +347,12 @@ error_es_neg:
     j salir
 
 desea_salir:
-    # leer Vi
     li $v0, 4           # Print string
-    la $a0, ingrese_salir    # Load address of prompt message
+    la $a0, newline     # Load address of newline character
+    syscall             # Print newline
+
+    li $v0, 4           # Print string
+    la $a0, ingrese_salir # Load address of prompt message
     syscall
     li $v0, 8               # Leer cadena de entrada
     la $a0, buffer          # Dirección de almacenamiento
