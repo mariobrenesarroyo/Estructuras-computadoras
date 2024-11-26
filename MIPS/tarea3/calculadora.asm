@@ -189,17 +189,19 @@ calcular_Vf:
     # Continúa con el resto del programa si no hay error
 
     # Vf = Vi + A * T
-    mul.s $f10, $f4, $f6
-    add.s $f9, $f2, $f10
-    
-    # Mostrar mensaje antes de imprimir el flotante 
-    la $a0, exitosoB                # Carga la dirección del mensaje "Éxito, el cálculo de Vf (m/s) es:" 
-    addiu $v0,$zero, 4              # Llamada al sistema para imprimir string 
-    syscall                         # Imprimir el número flotante ingresado 
-    mov.s $f12, $f9                 # Mover el valor flotante al registro $f12 
-    li $v0, 2                       # Llamada al sistema para imprimir un número flotante
+    mul.s $f10, $f4, $f6   # A * T -> $f10
+    add.s $f9, $f2, $f10   # Vi + (A * T) -> $f9 (Vf)
 
-    jal desea_salir
+    # Display the result
+    la $a0, exitosoB       # Load address of message into $a0
+    li $v0, 4              # System call for printing string
+    syscall                # Print the message
+
+    mov.s $f12, $f9        # Move Vf from $f9 to $f12 for printing
+    li $v0, 2              # System call for printing float
+    syscall                # Print Vf
+    
+    j desea_salir
 
 calcular_A:
     #verifico que tengan los valores necesarios no excuidos
