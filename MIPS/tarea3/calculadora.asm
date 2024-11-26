@@ -33,12 +33,6 @@ main:
     la $a0, bienvenida
     syscall
 
-main:
-    # Mensaje de bienvenida
-    li $v0, 4
-    la $a0, bienvenida
-    syscall
-
 nuevo_calculo:
     # Leer los valores de Vi, Vf, A, D, y T
 
