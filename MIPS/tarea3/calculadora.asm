@@ -20,7 +20,8 @@ newline:       .asciiz "\n"
 buffer: .space 20 # Espacio para almacenar la cadena de entrada
 valor_0: .float 0.0             # Definir 0.0 en la sección de datos
 valor_120: .float 120.0         # Definir 120.0 en la sección de datos
-
+valor_110: .float 110.0         # Definir 120.0 en la sección de datos
+valor_05:  .float 0.5           # Definir 120.0 en la sección de datos
 
 
 .text
@@ -75,7 +76,8 @@ nuevo_calculo:
 validar_y_calcular:
 
     # Realizar cálculos según el valor desconocido
-    li.s $f7, 110.0
+    la   $a0, valor_110      # Cargar la dirección de la variable "valor_110" en $a0
+    l.s  $f7, 0($a0)         # Cargar 0.0 desde la dirección en $a0 a $f7
     c.eq.s $f2, $f7
     bc1t calcular_Vi
     c.eq.s $f3, $f7
@@ -101,7 +103,7 @@ validar_y_calcular:
 
 
 calcular_Vi:
-#verifico que tengan los valores necesarios no excuidos
+    #verifico que tengan los valores necesarios no excuidos
     la   $a0, valor_120      # Cargar la dirección de la variable "valor_120" en $a0
     l.s  $f7, 0($a0)         # Cargar 0.0 desde la dirección en $a0 a $f7
     c.eq.s $f3, $f7
@@ -266,7 +268,10 @@ calcular_D:
     mul.s $f0, $f2, $f6       # Vi * T
     mul.s $f1, $f4, $f6       # A * T
     mul.s $f1, $f1, $f6       # A * T^2
-    li.s $f7, 0.5
+
+    la   $a0, valor_05      # Cargar la dirección de la variable "valor_0.5" en $a0
+    l.s  $f7, 0($a0)         # Cargar 0.0 desde la dirección en $a0 a $f7
+
     mul.s $f1, $f1, $f7       # 0.5 * A * T^2
     add.s $f9, $f0, $f1       # D = Vi * T + 0.5 * A * T^2
     
