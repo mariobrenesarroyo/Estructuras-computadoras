@@ -141,21 +141,19 @@ calcular_Vi:
     # Continúa con el resto del programa si no hay error
 
 
-
-
     # Vi = Vf - A * T
-    mul.s $f10, $f4, $f6  # A * T
-    sub.s $f9, $f3, $f10  # Vf - A * T
+    mul.s $f10, $f4, $f6   # A * T -> $f10
+    sub.s $f9, $f3, $f10   # Vf - (A * T) -> $f9 (Vi)
 
-    
-    # Mostrar mensaje antes de imprimir el flotante 
-    la $a0, exitosoA                # Carga la dirección del mensaje "Éxito, el cálculo de Vi (m/s) es: %f\n" 
-    addiu $v0,$zero, 4              # Llamada al sistema para imprimir string 
-    syscall                         # Imprimir el número flotante ingresado 
-    mov.s $f12, $f9                 # Mover el valor flotante al registro $f12 
-    li $v0, 2                       # Llamada al sistema para imprimir un número flotante
+    # Display the result
+    la $a0, exitosoA       # Load address of message into $a0
+    li $v0, 4              # System call for printing string
+    syscall                # Print the message
 
-    jal desea_salir
+    mov.s $f12, $f9        # Move Vi from $f9 to $f12 for printing
+    li $v0, 2              # System call for printing float
+    syscall                # Print Vi
+    j desea_salir
 
 
 
