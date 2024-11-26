@@ -94,18 +94,18 @@ validar_y_calcular:
 validar_valores:
     # Revisar si hay un valor 120
     li $t6, 120
-    beq $t1, $t6, error_120
-    beq $t2, $t6, error_120
-    beq $t3, $t6, error_120
-    beq $t4, $t6, error_120
-    beq $t5, $t6, error_120
+    beq $t1, $t6, error_es_120
+    beq $t2, $t6, error_es_120
+    beq $t3, $t6, error_es_120
+    beq $t4, $t6, error_es_120
+    beq $t5, $t6, error_es_120
 
     # Revisar si hay un valor negativo
-    bltz $t1, error_neg
-    bltz $t2, error_neg
-    bltz $t3, error_neg
-    bltz $t4, error_neg
-    bltz $t5, error_neg
+    bltz $t1, error_es_neg
+    bltz $t2, error_es_neg
+    bltz $t3, error_es_neg
+    bltz $t4, error_es_neg
+    bltz $t5, error_es_neg
 
     jr $ra
 
@@ -124,14 +124,14 @@ calcular_Vi:
     syscall
     j validar_y_calcular
 
-error_120:
+error_es_120:
     # Mostrar mensaje de error para 120
     li $v0, 4
     la $a0, error_120
     syscall
     j salir
 
-error_neg:
+error_es_neg:
     # Mostrar mensaje de error para valores negativos
     li $v0, 4
     la $a0, error_neg
