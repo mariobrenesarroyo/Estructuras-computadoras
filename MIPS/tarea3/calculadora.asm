@@ -200,7 +200,7 @@ calcular_Vf:
     mov.s $f12, $f9        # Move Vf from $f9 to $f12 for printing
     li $v0, 2              # System call for printing float
     syscall                # Print Vf
-    
+
     j desea_salir
 
 calcular_A:
@@ -233,17 +233,19 @@ calcular_A:
     # Continúa con el resto del programa si no hay error
 
     # A = (Vf - Vi) / T
-    sub.s $f10, $f3, $f2
-    div.s $f9, $f10, $f6
-    
-    # Mostrar mensaje antes de imprimir el flotante 
-    la $a0, exitosoC                # Carga la dirección del mensaje "Éxito, el cálculo de A (m/s^2) es:" 
-    addiu $v0,$zero, 4              # Llamada al sistema para imprimir string 
-    syscall                         # Imprimir el número flotante ingresado 
-    mov.s $f12, $f9                 # Mover el valor flotante al registro $f12 
-    li $v0, 2                       # Llamada al sistema para imprimir un número flotante
+    sub.s $f10, $f3, $f2   # Vf - Vi -> $f10
+    div.s $f9, $f10, $f6   # (Vf - Vi) / T -> $f9 (A)
 
-    jal desea_salir
+    # Display the result
+    la $a0, exitosoC       # Load address of message into $a0
+    li $v0, 4              # System call for printing string
+    syscall                # Print the message
+
+    mov.s $f12, $f9        # Move A from $f9 to $f12 for printing
+    li $v0, 2              # System call for printing float
+    syscall                # Print A
+
+    j desea_salir          # Jump to desea_salir
 
 calcular_D:
     #verifico que tengan los valores necesarios no excuidos
@@ -275,24 +277,26 @@ calcular_D:
     # Continúa con el resto del programa si no hay error
 
     # D = Vi * T + 0.5 * A * T^2
-    mul.s $f0, $f2, $f6       # Vi * T
-    mul.s $f1, $f4, $f6       # A * T
-    mul.s $f1, $f1, $f6       # A * T^2
+    mul.s $f10, $f2, $f6       # Vi * T -> $f10
+    mul.s $f11, $f4, $f6       # A * T -> $f11
+    mul.s $f11, $f11, $f6       # A * T^2 -> $f11
 
-    la   $a0, valor_05      # Cargar la dirección de la variable "valor_0.5" en $a0
-    l.s  $f7, 0($a0)         # Cargar 0.0 desde la dirección en $a0 a $f7
+    la   $a0, valor_05      # Load address of valor_05 (0.5) into $a0
+    l.s  $f7, 0($a0)         # Load 0.5 from the address in $a0 to $f7
 
-    mul.s $f1, $f1, $f7       # 0.5 * A * T^2
-    add.s $f9, $f0, $f1       # D = Vi * T + 0.5 * A * T^2
-    
-    # Mostrar mensaje antes de imprimir el flotante 
-    la $a0, exitosoD                # Carga la dirección del mensaje "Éxito, el cálculo de A (m) es:" 
-    addiu $v0,$zero, 4              # Llamada al sistema para imprimir string 
-    syscall                         # Imprimir el número flotante ingresado 
-    mov.s $f12, $f9                 # Mover el valor flotante al registro $f12 
-    li $v0, 2                       # Llamada al sistema para imprimir un número flotante
+    mul.s $f11, $f11, $f7       # 0.5 * A * T^2 -> $f11
+    add.s $f9, $f10, $f11       # D = Vi * T + 0.5 * A * T^2 -> $f9
 
-    jal desea_salir
+    # Display the result
+    la $a0, exitosoD       # Load address of message into $a0
+    li $v0, 4              # System call for printing string
+    syscall                # Print the message
+
+    mov.s $f12, $f9        # Move D from $f9 to $f12 for printing
+    li $v0, 2              # System call for printing float
+    syscall                # Print D
+
+    j desea_salir          # Jump to desea_salir
 
 calcular_T:
     #verifico que tengan los valores necesarios no excuidos
@@ -324,18 +328,20 @@ calcular_T:
     # Continúa con el resto del programa si no hay error
 
     # T = (Vf - Vi) / A
-    sub.s $f10, $f3, $f2
-    div.s $f9, $f10, $f4
+    sub.s $f10, $f3, $f2   # Vf - Vi -> $f10
+    div.s $f9, $f10, $f4   # (Vf - Vi) / A -> $f9 (T)
     
-    # Mostrar mensaje antes de imprimir el flotante 
-    la $a0, exitosoD                # Carga la dirección del mensaje "Éxito, el cálculo de A (m) es:" 
-    addiu $v0,$zero, 4              # Llamada al sistema para imprimir string 
-    syscall                         # Imprimir el número flotante ingresado 
-    mov.s $f12, $f9                 # Mover el valor flotante al registro $f12 
-    li $v0, 2                       # Llamada al sistema para imprimir un número flotante
+    # Display the result
+    la $a0, exitosoE       # Load address of message into $a0  (Changed to exitosoE)
+    li $v0, 4              # System call for printing string
+    syscall                # Print the message
 
-    jal desea_salir
+    mov.s $f12, $f9        # Move T from $f9 to $f12 for printing
+    li $v0, 2              # System call for printing float
+    syscall                # Print T
 
+    j desea_salir          # Jump to desea_salir
+    
 error_es_120:
     li $v0, 4
     la $a0, error_120
