@@ -347,6 +347,10 @@ error_es_neg:
     j salir
 
 desea_salir:
+    # leer Vi
+    li $v0, 4           # Print string
+    la $a0, ingrese_salir    # Load address of prompt message
+    syscall
     li $v0, 8               # Leer cadena de entrada
     la $a0, buffer          # Dirección de almacenamiento
     li $a1, 20              # Tamaño máximo
