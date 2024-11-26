@@ -1,6 +1,6 @@
 .data
 # Mensajes
-bienvenida:    .asciiz "Bienvenido, ingrese valores flotantes (110 para calcular, 120 para excluir):\n"
+bienvenida:    .asciiz "Bienvenido, ingrese valores flotantes (110 para calcular, 120 para excluir):\n formulas usadas Vi = Vf - A * T \n Vf = Vi + A * T \n A = (Vf - Vi) / T \n D = Vi * T + 0.5 * A * T^2 \n T = (Vf - Vi) / A \n"
 ingreseA:      .asciiz "Ingrese valor Vi (m/s): "
 ingreseB:      .asciiz "Ingrese valor Vf (m/s): "
 ingreseC:      .asciiz "Ingrese valor A (m/s^2): "
@@ -341,7 +341,7 @@ calcular_T:
     syscall                # Print T
 
     j desea_salir          # Jump to desea_salir
-    
+
 error_es_120:
     li $v0, 4
     la $a0, error_120
