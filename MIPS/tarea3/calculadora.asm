@@ -18,6 +18,10 @@ salir_opcion:  .asciiz "salir"
 newline:       .asciiz "\n"
 
 buffer: .space 20 # Espacio para almacenar la cadena de entrada
+valor_0: .float 0.0             # Definir 0.0 en la sección de datos
+valor_120: .float 120.0         # Definir 120.0 en la sección de datos
+
+
 
 .text
 .globl main
@@ -98,7 +102,8 @@ validar_y_calcular:
 
 calcular_Vi:
 #verifico que tengan los valores necesarios no excuidos
-    li.s $f7, 120.0
+    la   $a0, valor_120      # Cargar la dirección de la variable "valor_120" en $a0
+    l.s  $f7, 0($a0)         # Cargar 0.0 desde la dirección en $a0 a $f7
     c.eq.s $f3, $f7
     bc1t error_es_120
 
@@ -110,7 +115,8 @@ calcular_Vi:
 
     # Verifico que los valores no sean negativos
 
-    li.s $f7, 0.0           # Cargo 0.0 en $f7 para comparar
+    la   $a0, valor_0      # Cargar la dirección de la variable "valor_0" en $a0
+    l.s  $f7, 0($a0)       # Cargar 0.0 desde la dirección en $a0 a $f7
     c.lt.s $f3, $f7         # ¿$f3 < 0.0?
     bc1t error_es_neg       # Si es verdadero, salta a error_es_neg
 
@@ -146,7 +152,8 @@ calcular_Vf:
 
     #verifico que tengan los valores necesarios no excuidos
 
-    li.s $f7, 120.0
+    la   $a0, valor_120      # Cargar la dirección de la variable "valor_120" en $a0
+    l.s  $f7, 0($a0)         # Cargar 0.0 desde la dirección en $a0 a $f7
     c.eq.s $f2, $f7
     bc1t error_es_120
 
@@ -158,7 +165,8 @@ calcular_Vf:
 
     # Verifico que los valores no sean negativos
 
-    li.s $f7, 0.0           # Cargo 0.0 en $f7 para comparar
+    la   $a0, valor_0      # Cargar la dirección de la variable "valor_0" en $a0
+    l.s  $f7, 0($a0)       # Cargar 0.0 desde la dirección en $a0 a $f7
     c.lt.s $f2, $f7         # ¿$f2 < 0.0?
     bc1t error_es_neg       # Si es verdadero, salta a error_es_neg
 
@@ -186,7 +194,8 @@ calcular_Vf:
 calcular_A:
     #verifico que tengan los valores necesarios no excuidos
 
-    li.s $f7, 120.0
+    la   $a0, valor_120      # Cargar la dirección de la variable "valor_120" en $a0
+    l.s  $f7, 0($a0)       # Cargar 0.0 desde la dirección en $a0 a $f7
     c.eq.s $f3, $f7
     bc1t error_es_120
 
@@ -198,7 +207,8 @@ calcular_A:
 
     # Verifico que los valores no sean negativos
 
-    li.s $f7, 0.0           # Cargo 0.0 en $f7 para comparar
+    la   $a0, valor_0      # Cargar la dirección de la variable "valor_0" en $a0
+    l.s  $f7, 0($a0)       # Cargar 0.0 desde la dirección en $a0 a $f7
     c.lt.s $f2, $f7         # ¿$f2 < 0.0?
     bc1t error_es_neg       # Si es verdadero, salta a error_es_neg
 
@@ -226,7 +236,8 @@ calcular_A:
 calcular_D:
     #verifico que tengan los valores necesarios no excuidos
 
-    li.s $f7, 120.0
+    la   $a0, valor_120      # Cargar la dirección de la variable "valor_120" en $a0
+    l.s  $f7, 0($a0)         # Cargar 0.0 desde la dirección en $a0 a $f7
     c.eq.s $f2, $f7
     bc1t error_es_120
 
@@ -238,7 +249,8 @@ calcular_D:
 
     # Verifico que los valores no sean negativos
 
-    li.s $f7, 0.0           # Cargo 0.0 en $f7 para comparar
+    la   $a0, valor_0      # Cargar la dirección de la variable "valor_0" en $a0
+    l.s  $f7, 0($a0)       # Cargar 0.0 desde la dirección en $a0 a $f7
     c.lt.s $f2, $f7         # ¿$f2 < 0.0?
     bc1t error_es_neg       # Si es verdadero, salta a error_es_neg
 
@@ -270,7 +282,8 @@ calcular_D:
 calcular_T:
     #verifico que tengan los valores necesarios no excuidos
 
-    li.s $f7, 120.0
+    la   $a0, valor_120      # Cargar la dirección de la variable "valor_120" en $a0
+    l.s  $f7, 0($a0)       # Cargar 0.0 desde la dirección en $a0 a $f7
     c.eq.s $f2, $f7
     bc1t error_es_120
 
@@ -282,7 +295,8 @@ calcular_T:
 
     # Verifico que los valores no sean negativos
 
-    li.s $f7, 0.0           # Cargo 0.0 en $f7 para comparar
+    la   $a0, valor_0      # Cargar la dirección de la variable "valor_0" en $a0
+    l.s  $f7, 0($a0)       # Cargar 0.0 desde la dirección en $a0 a $f7
     c.lt.s $f2, $f7         # ¿$f2 < 0.0?
     bc1t error_es_neg       # Si es verdadero, salta a error_es_neg
 
