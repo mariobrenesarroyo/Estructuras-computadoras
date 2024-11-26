@@ -1,13 +1,14 @@
 .data
 # Mensajes
-bienvenida: .asciiz "Bienvenido, ingrese valores x, n, x para calcular, n para excluir:\n"
-ingreseA:    .asciiz "Ingrese valor Vi "
-ingreseB:    .asciiz "Ingrese valor Vf "
-ingreseC:    .asciiz "Ingrese valor A "
-ingreseD:    .asciiz "Ingrese valor D "
-ingreseE:    .asciiz "Ingrese valor T "
-error:      .asciiz "Error: el valor "
-es_n:       .asciiz " es n y no se puede realizar el cálculo.\n"
+bienvenida: .asciiz "Bienvenido, ingrese valores 110, 120 y flotantes  (110 para calcular, 120 para excluir):\n"
+ingreseA:    .asciiz "Ingrese valor Vi(m/s) "
+ingreseB:    .asciiz "Ingrese valor Vf (m/s) "
+ingreseC:    .asciiz "Ingrese valor A (m/s^2) "
+ingreseD:    .asciiz "Ingrese valor D (m)"
+ingreseE:    .asciiz "Ingrese valor T (s)"
+error:       .asciiz "Error: el valor "
+es_120:      .asciiz " es 120 y no se puede realizar el cálculo.\n"
+es_negativo  .asciiz " es negativo y por lo tanto no se puede hacer el calculo"
 exitosoA:    .asciiz "Éxito, el cálculo de Vi es: "
 exitosoB:    .asciiz "Éxito, el cálculo de Vf es: "
 exitosoC:    .asciiz "Éxito, el cálculo de A es: "
@@ -22,9 +23,6 @@ valE:        .asciiz "Se ingresó T como: "
 input:      .space 20            # Espacio para almacenar cada entrada
 newline:    .asciiz "\n"
 
-# Valores predefinidos
-x: .asciiz "x"                   # Representación de 'x'
-n: .asciiz "n"                   # Representación de 'n'
 
 .text
 main:

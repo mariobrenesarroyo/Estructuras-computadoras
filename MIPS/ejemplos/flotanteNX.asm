@@ -92,20 +92,20 @@ convertir_cadena_a_float:
     cvt.s.w $f0, $f0 # Convertir a flotante de precisión simple
     
 bucle:
-    lb $t4, 0($a0)   # Cargar un byte de la cadena
-    beqz $t4, fin    # Si es el terminador nulo, salir del bucle
-    beq $t4, '.', punto_decimal # Verificar si es un punto decimal
+    lb $t4, 0($a0)                      # Cargar un byte de la cadena
+    beqz $t4, fin                       # Si es el terminador nulo, salir del bucle
+    beq $t4, '.', punto_decimal         # Verificar si es un punto decimal
     
-    blt $t4, '0', entrada_invalida  # Verificar carácter inválido
-    bgt $t4, '9', entrada_invalida  # Verificar carácter inválido
+    blt $t4, '0', entrada_invalida      # Verificar carácter inválido
+    bgt $t4, '9', entrada_invalida      # Verificar carácter inválido
     
     sub $t4, $t4, '0'  # Convertir de ASCII a número entero
     
     # Si está antes del punto decimal (o no hay punto decimal todavía)
     bnez $t2, parte_fraccionaria 
     
-    mul $t0, $t0, $t3 # Multiplicar la parte entera actual por 10
-    add $t0, $t0, $t4 # Sumar el nuevo dígito
+    mul $t0, $t0, $t3                   # Multiplicar la parte entera actual por 10
+    add $t0, $t0, $t4                   # Sumar el nuevo dígito
     
     # Mover la parte entera actualizada a $f0
     mtc1 $t0, $f0
@@ -114,16 +114,16 @@ bucle:
     b siguiente_caracter
     
 parte_fraccionaria:
-    mul $t1, $t1, $t3 # Multiplicar la parte fraccionaria actual por 10
-    add $t1, $t1, $t4 # Sumar el nuevo dígito
-    addi $t2, $t2, 1   # Incrementar el contador de posiciones decimales
+    mul $t1, $t1, $t3                   # Multiplicar la parte fraccionaria actual por 10
+    add $t1, $t1, $t4                   # Sumar el nuevo dígito
+    addi $t2, $t2, 1                    # Incrementar el contador de posiciones decimales
 
 siguiente_caracter:
-    addi $a0, $a0, 1   # Pasar al siguiente carácter de la cadena
+    addi $a0, $a0, 1                    # Pasar al siguiente carácter de la cadena
     j bucle
     
 punto_decimal:
-    li $t2, 1       # Activar indicador de punto decimal
+    li $t2, 1                           # Activar indicador de punto decimal
     j siguiente_caracter
     
 entrada_invalida:
