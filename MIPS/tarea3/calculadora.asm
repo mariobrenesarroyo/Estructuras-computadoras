@@ -33,40 +33,56 @@ main:
     la $a0, bienvenida
     syscall
 
+main:
+    # Mensaje de bienvenida
+    li $v0, 4
+    la $a0, bienvenida
+    syscall
+
 nuevo_calculo:
     # Leer los valores de Vi, Vf, A, D, y T
 
     # leer Vi
-    li $v0, 6
-    la $a0, ingreseA
+    li $v0, 4       # Print string
+    la $a0, ingreseA  # Load address of prompt message
+    syscall
+    li $v0, 6       # Read float
     syscall
     mov.s $f2, $f0  # Vi -> $f2
 
     # leer vf
-    li $v0, 6
-    la $a0, ingreseB
+    li $v0, 4       # Print string
+    la $a0, ingreseB  # Load address of prompt message
+    syscall
+    li $v0, 6       # Read float
     syscall
     mov.s $f3, $f0  # Vf -> $f3   
 
     # leer A
-    li $v0, 6
-    la $a0, ingreseC
+    li $v0, 4       # Print string
+    la $a0, ingreseC  # Load address of prompt message
+    syscall
+    li $v0, 6       # Read float
     syscall
     mov.s $f4, $f0   # A -> $f4
 
     #leer D
-    li $v0, 6
-    la $a0, ingreseD
+    li $v0, 4       # Print string
+    la $a0, ingreseD  # Load address of prompt message
+    syscall
+    li $v0, 6       # Read float
     syscall
     mov.s $f5, $f0   # D -> $f5
 
     # leer t
-    li $v0, 6
-    la $a0, ingreseE
+    li $v0, 4       # Print string
+    la $a0, ingreseE  # Load address of prompt message
+    syscall
+    li $v0, 6       # Read float
     syscall
     mov.s $f6, $f0   # T -> $f6
     
-    jal validar_y_calcular
+    j validar_y_calcular
     
 
     
